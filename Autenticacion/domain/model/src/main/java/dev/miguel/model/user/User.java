@@ -18,6 +18,6 @@ public class User {
     private String direccion;
     private String telefono;
     private String correoElectronico;
-    private BigDecimal salario;
+    private BigDecimal salarioBase;
 
 }

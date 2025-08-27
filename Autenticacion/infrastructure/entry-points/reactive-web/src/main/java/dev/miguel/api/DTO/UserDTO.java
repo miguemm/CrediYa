@@ -11,6 +11,6 @@ public record UserDTO(
         String direccion,
         String telefono,
         String correoElectronico,
-        BigDecimal salario
+        BigDecimal salarioBase
 ) {
 }

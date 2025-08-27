@@ -10,6 +10,6 @@ public record CreateUserDTO(
         String direccion,
         String telefono,
         String correoElectronico,
-        BigDecimal salario
+        BigDecimal salarioBase
 ) {
 }

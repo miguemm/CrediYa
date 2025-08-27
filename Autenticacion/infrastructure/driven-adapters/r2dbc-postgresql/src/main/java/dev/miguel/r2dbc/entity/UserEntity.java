@@ -35,6 +35,6 @@ public class UserEntity {
     private String correoElectronico;
 
     @Column("salario_base")
-    private BigDecimal salario;
+    private BigDecimal salarioBase;
 
 }
