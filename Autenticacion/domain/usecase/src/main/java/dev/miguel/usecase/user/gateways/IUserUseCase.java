@@ -1,6 +1,6 @@
-package dev.miguel.usecase.usuario.gateways;
+package dev.miguel.usecase.user.gateways;
 
-import dev.miguel.model.usuario.User;
+import dev.miguel.model.user.User;
 import reactor.core.publisher.Mono;
 
 public interface IUserUseCase {

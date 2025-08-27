@@ -1,4 +1,4 @@
-package dev.miguel.model.usuario;
+package dev.miguel.model.user;
 import lombok.*;
 
 import java.math.BigDecimal;

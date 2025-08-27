@@ -1,7 +1,7 @@
 package dev.miguel.r2dbc;
 
-import dev.miguel.model.usuario.User;
-import dev.miguel.model.usuario.gateways.UserRepository;
+import dev.miguel.model.user.User;
+import dev.miguel.model.user.gateways.UserRepository;
 import dev.miguel.r2dbc.entity.UserEntity;
 import dev.miguel.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
@@ -28,6 +28,13 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<User> findUserById(Long id) {
         return super.findById(id);
+    }
+
+    @Override
+    public Mono<User> findUserByEmail(String email) {
+        User user = new User();
+        user.setCorreoElectronico(email);
+        return super.findByExample(user).next();
     }
 
 }

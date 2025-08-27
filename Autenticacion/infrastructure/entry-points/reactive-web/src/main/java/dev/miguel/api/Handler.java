@@ -2,7 +2,7 @@ package dev.miguel.api;
 
 import dev.miguel.api.DTO.CreateUserDTO;
 import dev.miguel.api.mapper.UserDtoMapper;
-import dev.miguel.usecase.usuario.gateways.IUserUseCase;
+import dev.miguel.usecase.user.gateways.IUserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
