@@ -31,7 +31,4 @@ public class UserUseCase implements IUserUseCase {
         return userRepository.findUserById(id);
     }
 
-
-
-
 }

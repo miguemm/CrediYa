@@ -10,8 +10,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("My API")
+                .info(new Info().title("Autenticación API")
                         .version("1.0")
-                        .description("API documentation for My Application"));
+                        .description("API que permite controlar la autenticación y gestión de usuarios"));
     }
 }

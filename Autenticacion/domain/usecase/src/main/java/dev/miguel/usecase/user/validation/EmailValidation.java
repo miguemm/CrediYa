@@ -20,6 +20,7 @@ public class EmailValidation implements UserValidation {
         if (!user.getCorreoElectronico().matches(emailRegex)) {
             return Mono.error(new IllegalArgumentException("El campo correo_electronico debe tener un formato de email válido"));
         }
+
         return userRepository.findUserByEmail(user.getCorreoElectronico())
                 .flatMap(existing -> Mono.error(new IllegalArgumentException("Correo ya existe")))
                 .then();
