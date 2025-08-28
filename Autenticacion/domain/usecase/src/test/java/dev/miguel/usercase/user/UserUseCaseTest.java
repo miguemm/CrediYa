@@ -36,19 +36,17 @@ class UserUseCaseTest {
     }
 
     @Test
-    void createUser_ok_whenEmailNotExists_completes_andSaves() {
+    void createUser_ok() {
         var input = validUser();
 
         when(userRepository.findUserByEmail(input.getCorreoElectronico()))
                 .thenReturn(Mono.empty());
 
-        // Si saveUser devuelve Mono<User>:
         when(userRepository.saveUser(input))
                 .thenReturn(Mono.just(input));
-        // (Si en tu repo saveUser devuelve Mono<Void>, usa: thenReturn(Mono.empty()))
 
         StepVerifier.create(useCase.createUser(input))
-                .verifyComplete(); // <-- ya no .expectNext(...)
+                .verifyComplete();
     }
 
     @Test

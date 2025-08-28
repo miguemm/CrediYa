@@ -33,13 +33,12 @@ class UserValidatorTest {
     }
 
     private void expectArgumentExceptionWithMessages(Throwable t, List<String> expected) {
-        assertTrue(t instanceof ArgumentException, "Debe lanzar ArgumentException");
+        assertInstanceOf(ArgumentException.class, t, "Debe lanzar ArgumentException");
+
         ArgumentException ex = (ArgumentException) t;
         assertNotNull(ex.getErrors(), "La lista de errores no debe ser null");
         assertEquals(expected, ex.getErrors(), "Errores agregados y en orden esperado");
     }
-
-    // --- Tests ---
 
     @Test
     @DisplayName("Caso feliz: usuario válido -> Mono.empty()")
@@ -221,11 +220,11 @@ class UserValidatorTest {
     @Test
     @DisplayName("Múltiples errores: verifica agregación y orden (concat)")
     void multiplesErroresOrdenados() {
-        // Fuerzo errores en nombre, apellido y email en ese orden; salario ok para probar el orden exacto
+
         User user = validUser().toBuilder()
-                .nombres("")               // error 1 (nombre)
-                .apellidos(null)           // error 2 (apellido)
-                .correoElectronico("bad@") // error 3 (email)
+                .nombres("")
+                .apellidos(null)
+                .correoElectronico("bad@")
                 .build();
 
         StepVerifier.create(executor.validateAll(user))

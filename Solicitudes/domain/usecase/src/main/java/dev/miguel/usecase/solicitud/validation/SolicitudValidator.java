@@ -36,7 +36,7 @@ public class SolicitudValidator {
 
     private Mono<String> validatePlazo (Solicitud solicitud) {
         return (solicitud.getPlazo() == null || solicitud.getPlazo() <= 0)
-                ? Mono.just("El monto deber ser un numero positivo")
+                ? Mono.just("El plazo deber ser un numero positivo")
                 : Mono.empty();
     }
 
