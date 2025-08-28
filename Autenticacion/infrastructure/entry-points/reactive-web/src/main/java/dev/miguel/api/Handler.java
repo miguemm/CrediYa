@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -29,7 +31,7 @@ public class Handler {
                 .flatMap(userUseCase::createUser)
                 .map(mapper::toDto)
                 .flatMap(savedDto ->
-                    ServerResponse.ok()
+                    ServerResponse.created(URI.create("/api/v1/usuario" + savedDto.id()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(savedDto)
                 )

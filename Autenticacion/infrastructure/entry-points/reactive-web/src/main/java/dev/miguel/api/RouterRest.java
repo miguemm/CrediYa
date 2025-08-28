@@ -53,7 +53,7 @@ public class RouterRest {
                             ),
                             responses = {
                                     @ApiResponse(
-                                            responseCode = "200",
+                                            responseCode = "201",
                                             description = "Usuario creado correctamente",
                                             content = @Content(
                                                     mediaType = "application/json",
