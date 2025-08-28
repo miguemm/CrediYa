@@ -2,62 +2,69 @@ package dev.miguel.usercase.user;
 
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
+import dev.miguel.usecase.exception.BusinessException;
 import dev.miguel.usecase.user.UserUseCase;
-import dev.miguel.usecase.user.validation.UserValidationExecutor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserUseCaseTest {
 
     @InjectMocks
-    UserUseCase userUseCase;
+    UserUseCase useCase;
 
     @Mock
     UserRepository userRepository;
 
-    private static User sample() {
+    // Helpers
+    private User validUser() {
         return User.builder()
-                .id(1L)
                 .nombres("Miguel")
                 .apellidos("Mosquera")
-                .correoElectronico("miguel@mail.com")
-                .salarioBase(new BigDecimal("1000000"))
+                .salarioBase(new BigDecimal("2500000"))
+                .correoElectronico("miguel@test.com")
                 .build();
     }
 
     @Test
-    void createUser_success() {
-        User input = sample();
-        UserUseCase useCase = new UserUseCase(userRepository);
+    void createUser_ok_whenEmailNotExists_saves() {
+        var input = validUser();
+        var saved = input.toBuilder().build();
 
-        try (MockedStatic<UserValidationExecutor> mocked = mockStatic(UserValidationExecutor.class)) {
+        when(userRepository.findUserByEmail(input.getCorreoElectronico()))
+                .thenReturn(Mono.empty());
 
-            mocked.when(() -> UserValidationExecutor.validateAll(any(), any()))
-                    .thenReturn(Mono.empty());
+        when(userRepository.saveUser(input))
+                .thenReturn(Mono.just(saved));
 
-            when(userRepository.saveUser(input)).thenReturn(Mono.just(input));
+        StepVerifier.create(useCase.createUser(input))
+                .expectNext(saved)
+                .verifyComplete();
 
-            StepVerifier.create(useCase.createUser(input))
-                    .expectNext(input)
-                    .verifyComplete();
+    }
 
-            mocked.verify(() -> UserValidationExecutor.validateAll(eq(input), any()), times(1));
-            verify(userRepository).saveUser(input);
-            verifyNoMoreInteractions(userRepository);
-        }
+    @Test
+    void createUser_error_whenEmailExists_throwsBusinessException_andDoesNotSave() {
+        var input = validUser();
+        var existing = validUser();
+
+        when(userRepository.findUserByEmail(input.getCorreoElectronico()))
+                .thenReturn(Mono.just(existing));
+
+        var result = useCase.createUser(input);
+
+        StepVerifier.create(result)
+                .expectError(BusinessException.class)
+                .verify();
     }
 
 }

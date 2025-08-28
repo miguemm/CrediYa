@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -29,30 +31,11 @@ public class Handler {
                 .flatMap(userUseCase::createUser)
                 .map(mapper::toDto)
                 .flatMap(savedDto ->
-                    ServerResponse.ok()
+                    ServerResponse.created(URI.create("/api/v1/usuario" + savedDto.id()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(savedDto)
                 )
                 .doOnError(error -> log.error("Error en createUser", error));
-    }
-
-    public Mono<ServerResponse> getUserById(ServerRequest serverRequest) {
-        Long id = Long.valueOf(serverRequest.pathVariable("id"));
-        log.info("--- Petición recibida en getUserById con id = {} ---", id);
-
-        return userUseCase.findUserById(id)
-                .map(mapper::toDto)
-                .doOnNext(dto -> log.info("Usuario mapeado a DTO: {}", dto))
-                .flatMap(dto ->
-                    ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(dto)
-                )
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.warn("No se encontró usuario con id={}", id);
-                    return ServerResponse.notFound().build();
-                }))
-                .doOnError(error -> log.error("Error en getUserById para id={}", id, error));
     }
 
 }
