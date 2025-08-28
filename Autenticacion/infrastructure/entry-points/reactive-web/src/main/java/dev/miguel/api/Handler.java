@@ -38,23 +38,4 @@ public class Handler {
                 .doOnError(error -> log.error("Error en createUser", error));
     }
 
-    public Mono<ServerResponse> getUserById(ServerRequest serverRequest) {
-        Long id = Long.valueOf(serverRequest.pathVariable("id"));
-        log.info("--- Petición recibida en getUserById con id = {} ---", id);
-
-        return userUseCase.findUserById(id)
-                .map(mapper::toDto)
-                .doOnNext(dto -> log.info("Usuario mapeado a DTO: {}", dto))
-                .flatMap(dto ->
-                    ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(dto)
-                )
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.warn("No se encontró usuario con id={}", id);
-                    return ServerResponse.notFound().build();
-                }))
-                .doOnError(error -> log.error("Error en getUserById para id={}", id, error));
-    }
-
 }
