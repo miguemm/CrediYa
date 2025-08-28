@@ -4,11 +4,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder(toBuilder = true)
 @ToString
 public class User {
@@ -23,5 +22,3 @@ public class User {
     private BigDecimal salarioBase;
 
 }
-
-

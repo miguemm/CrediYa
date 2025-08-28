@@ -7,6 +7,4 @@ public interface IUserUseCase {
 
     Mono<User> createUser(User user);
 
-    Mono<User> findUserById(Long id);
-
 }

@@ -4,8 +4,6 @@ import dev.miguel.api.DTO.CreateUserDTO;
 import dev.miguel.api.DTO.UserDTO;
 import dev.miguel.api.config.UsuarioPath;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -53,7 +51,7 @@ public class RouterRest {
                             ),
                             responses = {
                                     @ApiResponse(
-                                            responseCode = "200",
+                                            responseCode = "201",
                                             description = "Usuario creado correctamente",
                                             content = @Content(
                                                     mediaType = "application/json",
@@ -62,45 +60,10 @@ public class RouterRest {
                                     )
                             }
                     )
-            ),
-            @RouterOperation(
-                    path = "/api/v1/usuario/{id}",
-                    produces = { MediaType.APPLICATION_JSON_VALUE },
-                    method = RequestMethod.GET,
-                    beanClass = Handler.class,
-                    beanMethod = "getUserById",
-                    operation = @Operation(
-                            operationId = "getUserById",
-                            summary = "Obtener usuario por ID",
-                            description = "Devuelve un usuario existente por su identificador",
-                            tags = {"Autenticacion - Usuarios"},
-//                            security = { @SecurityRequirement(name = "bearerAuth") }, // listo para JWT a futuro
-                            parameters = {
-                                    @Parameter(
-                                            in = ParameterIn.PATH,
-                                            name = "id",
-                                            required = true,
-                                            description = "ID del usuario",
-                                            schema = @Schema(implementation = Long.class)
-                                    )
-                            },
-                            responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Usuario encontrado",
-                                            content = @Content(
-                                                    mediaType = "application/json",
-                                                    schema = @Schema(implementation = UserDTO.class)
-                                            )
-                                    ),
-                                    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-                            }
-                    )
             )
     })
     @Bean
     public RouterFunction<ServerResponse> routerFunction() {
-        return route(POST(usuarioPath.getUsuario()), handler::createUser)
-                .andRoute(GET(usuarioPath.getUsuarioById()), handler::getUserById);
+        return route(POST(usuarioPath.getUsuario()), handler::createUser);
     }
 }
