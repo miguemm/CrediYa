@@ -1,22 +1,28 @@
 package dev.miguel.model.solicitud;
-import dev.miguel.model.estado.Estado;
-import dev.miguel.model.tipoprestamo.TipoPrestamo;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Solicitud {
 
+    private Long id;
+
     private BigDecimal monto;
-    private int plazo;
+
+    private Integer plazo;
+
     private String correoElectronico;
-    private Estado estado;
-    private TipoPrestamo tipoPrestamo;
+
+    private Long estadoId;
+
+    private Long tipoPrestamoId;
+
+    private Long usuarioId;
 }

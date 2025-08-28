@@ -23,6 +23,10 @@ management:
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 
+routes:
+  paths:
+    solicitud: "/api/v1/solicitud"
+
 adapters:
   r2dbc:
     host: "localhost"

@@ -1,17 +1,17 @@
 package dev.miguel.model.tipoprestamo;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class TipoPrestamo {
 
+    private Long id;
     private String nombre;
     private BigDecimal montoMinimo;
     private BigDecimal montoMaximo;

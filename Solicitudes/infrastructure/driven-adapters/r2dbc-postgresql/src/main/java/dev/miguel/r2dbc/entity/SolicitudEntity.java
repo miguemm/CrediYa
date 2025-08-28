@@ -26,9 +26,12 @@ public class SolicitudEntity {
     @Column("correo_electronico")
     private String correoElectronico;
 
-    @Column("estado_id")          // FK hacia EstadoEntity
+    @Column("estado_id")
     private Long estadoId;
 
-    @Column("tipo_prestamo_id")   // FK hacia TipoPrestamoEntity
+    @Column("tipo_prestamo_id")
     private Long tipoPrestamoId;
+
+    @Column("usuario_id")
+    private Long usuarioId;
 }

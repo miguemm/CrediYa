@@ -8,12 +8,13 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 
 @Table("tipo_prestamo")
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Builder
-public class TipoPrestamosEntity {
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
+@ToString
+public class TipoPrestamoEntity {
 
     @Id
     @Column("tipo_prestamo_id")

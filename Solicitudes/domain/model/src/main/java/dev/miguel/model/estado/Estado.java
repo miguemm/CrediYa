@@ -1,15 +1,15 @@
 package dev.miguel.model.estado;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Estado {
 
+    private Long id;
     private String nombre;
     private String descripcion;
 }

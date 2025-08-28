@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface IUserUseCase {
 
-    Mono<User> createUser(User user);
+    Mono<Void> createUser(User user);
 
 }
