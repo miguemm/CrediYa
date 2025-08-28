@@ -1,5 +1,7 @@
 package dev.miguel.usercase.user;
 
+import dev.miguel.model.rol.Rol;
+import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
 import dev.miguel.usecase.exception.BusinessException;
@@ -24,6 +26,8 @@ class UserUseCaseTest {
 
     @Mock
     UserRepository userRepository;
+    @Mock
+    RolRepository rolRepository;
 
     // Helpers
     private User validUser() {
@@ -32,6 +36,7 @@ class UserUseCaseTest {
                 .apellidos("Mosquera")
                 .salarioBase(new BigDecimal("2500000"))
                 .correoElectronico("miguel@test.com")
+                .rolId(1L)
                 .build();
     }
 
@@ -42,6 +47,9 @@ class UserUseCaseTest {
         when(userRepository.findUserByEmail(input.getCorreoElectronico()))
                 .thenReturn(Mono.empty());
 
+        when(rolRepository.existsById(input.getRolId()))
+                .thenReturn(Mono.just(true));
+
         when(userRepository.saveUser(input))
                 .thenReturn(Mono.just(input));
 
@@ -50,12 +58,29 @@ class UserUseCaseTest {
     }
 
     @Test
-    void createUser_error_whenEmailExists_throwsBusinessException_andDoesNotSave() {
+    void createUser_error_whenEmailExists_throwsBusinessException() {
         var input = validUser();
         var existing = validUser();
 
         when(userRepository.findUserByEmail(input.getCorreoElectronico()))
                 .thenReturn(Mono.just(existing));
+
+        var result = useCase.createUser(input);
+
+        StepVerifier.create(result)
+                .expectError(BusinessException.class)
+                .verify();
+    }
+
+    @Test
+    void createUser_error_whenRolDoesntExists_throwsBusinessException() {
+        var input = validUser();
+
+        when(userRepository.findUserByEmail(input.getCorreoElectronico()))
+                .thenReturn(Mono.empty());
+
+        when(rolRepository.existsById(input.getRolId()))
+                .thenReturn(Mono.just(false));
 
         var result = useCase.createUser(input);
 

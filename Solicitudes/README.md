@@ -81,16 +81,20 @@ CREATE TABLE solicitud (
   correo_electronico VARCHAR(255) NOT NULL,
   estado_id         BIGINT NOT NULL,
   tipo_prestamo_id  BIGINT NOT NULL,
-  usuario_id        BIGINT, -- único campo que puede ser NULL
+  usuario_id        BIGINT,
 
   CONSTRAINT chk_solicitud_email_not_blank
     CHECK (length(btrim(correo_electronico)) > 0),
 
   CONSTRAINT fk_solicitud_estado
-    FOREIGN KEY (estado_id) REFERENCES estado(estado_id),
+    FOREIGN KEY (estado_id) REFERENCES estado(estado_id)
+    ON UPDATE RESTRICT
+    ON DELETE RESTRICT,
 
   CONSTRAINT fk_solicitud_tipo_prestamo
     FOREIGN KEY (tipo_prestamo_id) REFERENCES tipo_prestamo(tipo_prestamo_id)
+    ON UPDATE RESTRICT
+    ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_solicitud_estado ON solicitud (estado_id);
