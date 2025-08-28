@@ -1,9 +1,9 @@
 package dev.miguel.api;
 
 import dev.miguel.api.DTO.CreateUserDTO;
-import dev.miguel.api.DTO.UserDTO;
 import dev.miguel.api.config.UsuarioPath;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -53,10 +53,14 @@ public class RouterRest {
                                     @ApiResponse(
                                             responseCode = "201",
                                             description = "Usuario creado correctamente",
-                                            content = @Content(
-                                                    mediaType = "application/json",
-                                                    schema = @Schema(implementation = UserDTO.class)
-                                            )
+                                            content = @Content,
+                                            headers = {
+                                                    @Header(
+                                                            name = "Location",
+                                                            description = "URI del usuario creado",
+                                                            schema = @Schema(type = "string")
+                                                    )
+                                            }
                                     )
                             }
                     )

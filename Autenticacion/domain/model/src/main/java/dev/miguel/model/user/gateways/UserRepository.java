@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 public interface UserRepository {
 
-    Mono<User> saveUser(User task);
+    Mono<User> saveUser(User user);
 
     Mono<User> findUserById(Long id);
 

@@ -36,20 +36,17 @@ class UserUseCaseTest {
     }
 
     @Test
-    void createUser_ok_whenEmailNotExists_saves() {
+    void createUser_ok() {
         var input = validUser();
-        var saved = input.toBuilder().build();
 
         when(userRepository.findUserByEmail(input.getCorreoElectronico()))
                 .thenReturn(Mono.empty());
 
         when(userRepository.saveUser(input))
-                .thenReturn(Mono.just(saved));
+                .thenReturn(Mono.just(input));
 
         StepVerifier.create(useCase.createUser(input))
-                .expectNext(saved)
                 .verifyComplete();
-
     }
 
     @Test

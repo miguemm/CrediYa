@@ -14,13 +14,14 @@ public class UserUseCase implements IUserUseCase {
     private final UserRepository userRepository;
 
     @Override
-    public Mono<User> createUser(User user) {
-        UserValidator userValidator = new UserValidator();
+    public Mono<Void> createUser(User user) {
+        UserValidator validator = new UserValidator();
 
-        return userValidator.validateAll(user)
+        return validator.validateAll(user)
                 .then(userRepository.findUserByEmail(user.getCorreoElectronico()))
                 .flatMap(existing -> Mono.<User>error(new BusinessException("Correo ya existe")))
-                .switchIfEmpty(Mono.defer(() -> userRepository.saveUser(user)));
+                .switchIfEmpty(Mono.defer(() -> userRepository.saveUser(user)))
+                .then();
     }
 
 }
