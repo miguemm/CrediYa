@@ -57,7 +57,7 @@ public class SolicitudValidatorTest {
 
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El monto de la solicitud no es valido"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_MONTO_INVALIDO));
                     })
                     .verify();
         }
@@ -70,7 +70,7 @@ public class SolicitudValidatorTest {
             // Act + Assert
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El monto de la solicitud no es valido"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_MONTO_INVALIDO));
                     })
                     .verify();
         }
@@ -81,7 +81,7 @@ public class SolicitudValidatorTest {
 
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El plazo deber ser un numero positivo"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_PLAZO_INVALIDO));
                     })
                     .verify();
         }
@@ -94,7 +94,7 @@ public class SolicitudValidatorTest {
             // Act + Assert
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El plazo deber ser un numero positivo"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_PLAZO_INVALIDO));
                     })
                     .verify();
         }
@@ -105,7 +105,7 @@ public class SolicitudValidatorTest {
 
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El campo correo_electronico no puede ser nulo o vacío"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO));
                     })
                     .verify();
         }
@@ -118,7 +118,7 @@ public class SolicitudValidatorTest {
             // Act + Assert
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El campo correo_electronico no puede ser nulo o vacío"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO));
                     })
                     .verify();
         }
@@ -131,7 +131,7 @@ public class SolicitudValidatorTest {
             // Act + Assert
             StepVerifier.create(solicitudValidator.validateAll(solicitud))
                     .expectErrorSatisfies(t -> {
-                        expectArgumentExceptionWithMessages(t, List.of("El campo correo_electronico debe tener un formato de email válido"));
+                        expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.FORMATO_EMAIL_INVALIDO));
                     })
                     .verify();
         }

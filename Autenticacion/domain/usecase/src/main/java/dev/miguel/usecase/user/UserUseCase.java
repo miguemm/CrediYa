@@ -4,6 +4,7 @@ import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
 import dev.miguel.usecase.exception.BusinessException;
+import dev.miguel.usecase.exception.ExceptionMessages;
 import dev.miguel.usecase.user.gateways.IUserUseCase;
 import dev.miguel.usecase.user.validation.*;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,14 @@ public class UserUseCase implements IUserUseCase {
                 .then(userRepository.findUserByEmail(user.getCorreoElectronico()).hasElement())
                 .flatMap(emailExists -> {
                     if (emailExists) {
-                        return Mono.error(new BusinessException("Correo ya existe"));
+                        return Mono.error(new BusinessException(ExceptionMessages.CORREO_YA_EXISTE));
                     }
 
                     return rolRepository.existsById(user.getRolId());
                 })
                 .flatMap(rolExists -> {
                     if (!rolExists) {
-                        return Mono.error(new BusinessException("Rol no existe"));
+                        return Mono.error(new BusinessException(ExceptionMessages.ROL_NO_EXISTE));
                     }
 
                     return userRepository.saveUser(user);

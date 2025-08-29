@@ -6,6 +6,7 @@ import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.usecase.exception.BusinessException;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
+import dev.miguel.usecase.solicitud.validation.ExceptionMessages;
 import dev.miguel.usecase.solicitud.validation.SolicitudValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -32,8 +33,8 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                     boolean tipoOk = exists.getT1();
                     boolean estadoOk = exists.getT2();
 
-                    if (!tipoOk) return Mono.error(new BusinessException("El tipo de préstamo no existe"));
-                    if (!estadoOk) return Mono.error(new BusinessException("El estado de la solicitud no existe"));
+                    if (!tipoOk) return Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE));
+                    if (!estadoOk) return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
 
                     solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
                     return solicitudRepository.saveSolicitud(solicitud).then();

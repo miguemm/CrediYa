@@ -1,5 +1,6 @@
 package dev.miguel.api;
 
+import dev.miguel.api.DTO.ApiErrorResponse;
 import dev.miguel.api.DTO.CreateUserDTO;
 import dev.miguel.api.config.UsuarioPath;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +62,15 @@ public class RouterRest {
                                                             schema = @Schema(type = "string")
                                                     )
                                             }
-                                    )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Solicitud inválida",
+                                            content = @Content(
+                                                    mediaType = "application/json",
+                                                    schema = @Schema(implementation = ApiErrorResponse.class)
+                                            )
+                                    ),
                             }
                     )
             )

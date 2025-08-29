@@ -1,34 +1,27 @@
 package dev.miguel.api.config;
 
+import dev.miguel.api.DTO.ApiErrorResponse;
 import dev.miguel.usecase.exception.ArgumentException;
 import dev.miguel.usecase.exception.BusinessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.net.URI;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalErrorHandler {
 
     @ExceptionHandler(ArgumentException.class)
-    public ProblemDetail handleValidation(ArgumentException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Solicitud inválida");
-        pd.setDetail(ex.getMessage());
-        pd.setType(URI.create("https://example.com/errors/validation"));
-        pd.setProperty("errors", ex.getErrors());
-        return pd;
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrorResponse handleValidation(ArgumentException ex) {
+        return new ApiErrorResponse(ex.getErrors());
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ProblemDetail handleValidation(BusinessException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Solicitud inválida");
-        pd.setDetail(ex.getMessage());
-        pd.setType(URI.create("https://example.com/errors/validation"));
-        pd.setProperty("errors", ex.getMessage());
-        return pd;
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrorResponse handleValidation(BusinessException ex) {
+        return new ApiErrorResponse(List.of(ex.getMessage()));
     }
 }

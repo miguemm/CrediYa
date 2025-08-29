@@ -2,6 +2,7 @@ package dev.miguel.usecase.user.validation;
 
 import dev.miguel.model.user.User;
 import dev.miguel.usecase.exception.ArgumentException;
+import dev.miguel.usecase.exception.ExceptionMessages;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,30 +34,30 @@ public class UserValidator {
 
     private Mono<String> validateNombre(User user) {
         return (user.getNombres() == null || user.getNombres().isEmpty())
-                ? Mono.just("El campo nombre no puede ser nulo o vacío")
+                ? Mono.just(ExceptionMessages.CAMPO_NOMBRE_INVALIDO)
                 : Mono.empty();
     }
 
     private Mono<String> validateApellido(User user) {
         return (user.getApellidos() == null || user.getApellidos().isEmpty())
-                ? Mono.just("El campo apellido no puede ser nulo o vacío")
+                ? Mono.just(ExceptionMessages.CAMPO_APELLIDO_INVALIDO)
                 : Mono.empty();
     }
 
     private Mono<String> validateSalario(User user) {
         return (user.getSalarioBase() == null || user.getSalarioBase().compareTo(SALARIO_MIN) < 0 || user.getSalarioBase().compareTo(SALARIO_MAX) > 0)
-                ? Mono.just("El salario base debe estar entre 0 y 15.000.000")
+                ? Mono.just(ExceptionMessages.CAMPO_SALARIO_INVALIDO)
                 : Mono.empty();
     }
 
     private Mono<String> validateEmail(User user) {
         if (user.getCorreoElectronico() == null || user.getCorreoElectronico().isEmpty()) {
-            return Mono.just("El campo correo_electronico no puede ser nulo o vacío");
+            return Mono.just(ExceptionMessages.CAMPO_EMAIL_INVALIDO);
         }
 
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!user.getCorreoElectronico().matches(emailRegex)) {
-            return Mono.just("El campo correo_electronico debe tener un formato de email válido");
+            return Mono.just(ExceptionMessages.FORMATO_EMAIL_INVALIDO);
         }
 
         return Mono.empty();

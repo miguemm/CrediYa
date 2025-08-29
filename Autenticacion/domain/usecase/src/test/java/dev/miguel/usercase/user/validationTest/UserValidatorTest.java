@@ -2,6 +2,7 @@ package dev.miguel.usercase.user.validationTest;
 
 import dev.miguel.model.user.User;
 import dev.miguel.usecase.exception.ArgumentException;
+import dev.miguel.usecase.exception.ExceptionMessages;
 import dev.miguel.usecase.user.validation.UserValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,7 +62,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo nombre no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_NOMBRE_INVALIDO)
                             )
                     )
                     .verify();
@@ -75,7 +76,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo nombre no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_NOMBRE_INVALIDO)
                             )
                     )
                     .verify();
@@ -94,7 +95,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo apellido no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_APELLIDO_INVALIDO)
                             )
                     )
                     .verify();
@@ -108,7 +109,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo apellido no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_APELLIDO_INVALIDO)
                             )
                     )
                     .verify();
@@ -127,7 +128,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El salario base debe estar entre 0 y 15.000.000")
+                                    List.of(ExceptionMessages.CAMPO_SALARIO_INVALIDO)
                             )
                     )
                     .verify();
@@ -141,7 +142,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El salario base debe estar entre 0 y 15.000.000")
+                                    List.of(ExceptionMessages.CAMPO_SALARIO_INVALIDO)
                             )
                     )
                     .verify();
@@ -155,7 +156,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El salario base debe estar entre 0 y 15.000.000")
+                                    List.of(ExceptionMessages.CAMPO_SALARIO_INVALIDO)
                             )
                     )
                     .verify();
@@ -174,7 +175,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo correo_electronico no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO)
                             )
                     )
                     .verify();
@@ -188,7 +189,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo correo_electronico no puede ser nulo o vacío")
+                                    List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO)
                             )
                     )
                     .verify();
@@ -202,7 +203,7 @@ class UserValidatorTest {
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
-                                    List.of("El campo correo_electronico debe tener un formato de email válido")
+                                    List.of(ExceptionMessages.FORMATO_EMAIL_INVALIDO)
                             )
                     )
                     .verify();
@@ -232,9 +233,9 @@ class UserValidatorTest {
                         expectArgumentExceptionWithMessages(
                                 t,
                                 List.of(
-                                        "El campo nombre no puede ser nulo o vacío",
-                                        "El campo apellido no puede ser nulo o vacío",
-                                        "El campo correo_electronico debe tener un formato de email válido"
+                                        ExceptionMessages.CAMPO_NOMBRE_INVALIDO,
+                                        ExceptionMessages.CAMPO_APELLIDO_INVALIDO,
+                                        ExceptionMessages.FORMATO_EMAIL_INVALIDO
                                 )
                         )
                 )

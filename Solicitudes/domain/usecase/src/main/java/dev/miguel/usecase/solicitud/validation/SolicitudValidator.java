@@ -29,25 +29,25 @@ public class SolicitudValidator {
     }
 
     private Mono<String> validateMonto (Solicitud solicitud) {
-        return (solicitud.getMonto() == null || solicitud.getMonto().compareTo(MONTO_MIN) < 0)
-                ? Mono.just("El monto de la solicitud no es valido")
+        return (solicitud.getMonto() == null || solicitud.getMonto().compareTo(MONTO_MIN) <= 0)
+                ? Mono.just(ExceptionMessages.CAMPO_MONTO_INVALIDO)
                 : Mono.empty();
     }
 
     private Mono<String> validatePlazo (Solicitud solicitud) {
         return (solicitud.getPlazo() == null || solicitud.getPlazo() <= 0)
-                ? Mono.just("El plazo deber ser un numero positivo")
+                ? Mono.just(ExceptionMessages.CAMPO_PLAZO_INVALIDO)
                 : Mono.empty();
     }
 
     private Mono<String> validateEmail(Solicitud solicitud) {
         if (solicitud.getCorreoElectronico() == null || solicitud.getCorreoElectronico().isEmpty()) {
-            return Mono.just("El campo correo_electronico no puede ser nulo o vacío");
+            return Mono.just(ExceptionMessages.CAMPO_EMAIL_INVALIDO);
         }
 
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!solicitud.getCorreoElectronico().matches(emailRegex)) {
-            return Mono.just("El campo correo_electronico debe tener un formato de email válido");
+            return Mono.just(ExceptionMessages.FORMATO_EMAIL_INVALIDO);
         }
 
         return Mono.empty();
