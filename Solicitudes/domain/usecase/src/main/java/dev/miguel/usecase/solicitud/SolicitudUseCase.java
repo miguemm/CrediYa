@@ -35,6 +35,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                     if (!tipoOk) return Mono.error(new BusinessException("El tipo de préstamo no existe"));
                     if (!estadoOk) return Mono.error(new BusinessException("El estado de la solicitud no existe"));
 
+                    solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
                     return solicitudRepository.saveSolicitud(solicitud).then();
                 });
     }

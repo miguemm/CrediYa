@@ -10,8 +10,6 @@ public record CreateSolicitudDTO(
 
         String correoElectronico,
 
-        Long estadoId,
-
         Long tipoPrestamoId
 
 ) {

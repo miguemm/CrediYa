@@ -25,6 +25,7 @@ public class TipoPrestamoReactiveRepositoryAdapter extends ReactiveAdapterOperat
     @Override
     public Mono<Boolean> existsTipoPrestamoById(Long id) {
         log.info("Verificando existencia de tipo prestamo id={}", id);
+
         return super.findById(id)
                 .hasElement()
                 .doOnSuccess(exists -> {
