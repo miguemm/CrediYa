@@ -47,7 +47,7 @@ Este módulo es el más externo de la arquitectura, es el encargado de ensamblar
 **Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
 
 ## Swagger
-http://localhost:8080/webjars/swagger-ui/index.html
+http://localhost:8081/webjars/swagger-ui/index.html
 
 
 # DDL
