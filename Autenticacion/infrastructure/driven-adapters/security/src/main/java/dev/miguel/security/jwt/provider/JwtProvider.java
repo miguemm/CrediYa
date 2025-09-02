@@ -1,4 +1,4 @@
-package dev.miguel.r2dbc.jwt.provider;
+package dev.miguel.security.jwt.provider;
 
 import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.User;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -31,13 +32,16 @@ public class JwtProvider {
     }
 
     public Mono<String> generateToken(User user) {
+        final Instant now = Instant.now();
+        final Instant exp = now.plusSeconds(expiration);
+
         return rolRepository.findRolById(user.getRolId())
                 .map(rol -> Jwts.builder()
                         .subject(String.valueOf(user.getId()))
                         .claim("email", user.getCorreoElectronico())
                         .claim("roles", List.of(rol.getNombre()))
-                        .issuedAt(new Date())
-                        .expiration(new Date(new Date().getTime() + expiration))
+                        .issuedAt(Date.from(now))
+                        .expiration(Date.from(exp))
                         .signWith(getKey(secret))
                         .compact());
     }

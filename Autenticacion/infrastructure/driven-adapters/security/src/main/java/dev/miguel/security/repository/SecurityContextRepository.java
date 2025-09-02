@@ -1,6 +1,6 @@
-package dev.miguel.r2dbc.jwt.repository;
+package dev.miguel.security.repository;
 
-import dev.miguel.r2dbc.jwt.manager.JwtAuthenticationManager;
+import dev.miguel.security.jwt.manager.JwtAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;

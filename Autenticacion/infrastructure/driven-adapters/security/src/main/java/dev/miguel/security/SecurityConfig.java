@@ -1,6 +1,8 @@
-package dev.miguel.config.authentication;
+package dev.miguel.security;
 
-import dev.miguel.r2dbc.jwt.repository.SecurityContextRepository;
+
+import dev.miguel.security.jwt.filter.JwtFilter;
+import dev.miguel.security.repository.SecurityContextRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;

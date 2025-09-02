@@ -12,5 +12,4 @@ public interface UserRepository {
 
     Mono<User> findUserByEmail(String email);
 
-    Mono<Token> login(User user, String password);
 }

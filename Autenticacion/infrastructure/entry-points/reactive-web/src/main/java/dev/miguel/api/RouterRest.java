@@ -27,7 +27,6 @@ public class RouterRest {
 
     private final AppPaths appPaths;
     private final UserHandler userHandler;
-    private final AuthenticationHandler authenticationHandler;
 
     @RouterOperations({
             @RouterOperation(
@@ -79,7 +78,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction() {
         return route()
                 .POST(appPaths.getUsuario(), userHandler::createUser)
-                .POST(appPaths.getAuthentication(), authenticationHandler::logIn)
+                .POST(appPaths.getAuthentication(), userHandler::logIn)
                 .build();
     }
 }

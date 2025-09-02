@@ -1,6 +1,6 @@
-package dev.miguel.r2dbc.jwt.manager;
+package dev.miguel.security.jwt.manager;
 
-import dev.miguel.r2dbc.jwt.provider.JwtProvider;
+import dev.miguel.security.jwt.provider.JwtProvider;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

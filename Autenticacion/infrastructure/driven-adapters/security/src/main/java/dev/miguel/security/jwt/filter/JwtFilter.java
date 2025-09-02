@@ -1,9 +1,12 @@
-package dev.miguel.config.authentication;
+package dev.miguel.security.jwt.filter;
 
-import dev.miguel.usecase.exception.AuthException;
+import dev.miguel.model.exception.BusinessException;
+import dev.miguel.model.exception.SecurityException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -38,7 +41,7 @@ public class JwtFilter implements WebFilter {
         
         String auth = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (auth == null || !auth.startsWith("Bearer ")) {
-            return Mono.error(new AuthException("Missing or invalid Authorization header"));
+            return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Falta autenticación"));
         }
 
         String token = auth.substring(7);

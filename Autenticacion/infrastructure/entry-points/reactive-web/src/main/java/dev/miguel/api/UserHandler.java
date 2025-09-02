@@ -1,10 +1,12 @@
 package dev.miguel.api;
 
 import dev.miguel.api.DTO.CreateUserDTO;
+import dev.miguel.api.DTO.LogInDTO;
 import dev.miguel.api.mapper.UserDtoMapper;
 import dev.miguel.usecase.user.gateways.IUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -35,6 +37,19 @@ public class UserHandler {
                     return ServerResponse.created(location).build();
                 })
                 .doOnError(error -> log.error("Error en createUser", error));
+    }
+
+    public Mono<ServerResponse> logIn(ServerRequest request) {
+        log.info("--- Petición recibida en logIn ---");
+
+        return request.bodyToMono(LogInDTO.class)
+                .doOnNext(dto -> log.info("Iniciando sesión para: {}", dto.correoElectronico()))
+                .flatMap(dto -> userUseCase.login(dto.correoElectronico(), dto.contrasenia()))
+                .flatMap(response -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(response)
+                )
+                .doOnError(error -> log.error("Error en logIn", error));
     }
 
 }

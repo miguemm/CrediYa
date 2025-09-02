@@ -1,8 +1,8 @@
 package dev.miguel.usecase.user.validation;
 
 import dev.miguel.model.user.User;
-import dev.miguel.usecase.exception.ArgumentException;
-import dev.miguel.usecase.exception.ExceptionMessages;
+import dev.miguel.model.exception.ArgumentException;
+import dev.miguel.model.exception.ExceptionMessages;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

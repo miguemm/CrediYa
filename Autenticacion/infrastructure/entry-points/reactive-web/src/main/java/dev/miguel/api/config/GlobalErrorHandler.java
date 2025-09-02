@@ -1,9 +1,10 @@
 package dev.miguel.api.config;
 
 import dev.miguel.api.DTO.ApiErrorResponse;
-import dev.miguel.usecase.exception.ArgumentException;
-import dev.miguel.usecase.exception.AuthException;
-import dev.miguel.usecase.exception.BusinessException;
+import dev.miguel.model.exception.ArgumentException;
+import dev.miguel.model.exception.SecurityException;
+import dev.miguel.model.exception.AuthorityException;
+import dev.miguel.model.exception.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,9 +27,15 @@ public class GlobalErrorHandler {
         return new ApiErrorResponse(List.of(ex.getMessage()));
     }
 
-    @ExceptionHandler(AuthException.class)
+    @ExceptionHandler(SecurityException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiErrorResponse handleValidation(SecurityException ex) {
+        return new ApiErrorResponse(List.of(ex.getMessage()));
+    }
+
+    @ExceptionHandler(AuthorityException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ApiErrorResponse handleValidation(AuthException ex) {
+    public ApiErrorResponse handleValidation(AuthorityException ex) {
         return new ApiErrorResponse(List.of(ex.getMessage()));
     }
 }

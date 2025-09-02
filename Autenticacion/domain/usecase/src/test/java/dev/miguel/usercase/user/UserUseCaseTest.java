@@ -1,10 +1,9 @@
 package dev.miguel.usercase.user;
 
-import dev.miguel.model.rol.Rol;
 import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
-import dev.miguel.usecase.exception.BusinessException;
+import dev.miguel.model.exception.BusinessException;
 import dev.miguel.usecase.user.UserUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +35,7 @@ class UserUseCaseTest {
                 .apellidos("Mosquera")
                 .salarioBase(new BigDecimal("2500000"))
                 .correoElectronico("miguel@test.com")
+                .contrasenia("12345")
                 .rolId(1L)
                 .build();
     }

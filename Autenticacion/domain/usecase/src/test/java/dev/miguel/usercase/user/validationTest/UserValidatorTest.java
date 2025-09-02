@@ -1,8 +1,8 @@
 package dev.miguel.usercase.user.validationTest;
 
 import dev.miguel.model.user.User;
-import dev.miguel.usecase.exception.ArgumentException;
-import dev.miguel.usecase.exception.ExceptionMessages;
+import dev.miguel.model.exception.ArgumentException;
+import dev.miguel.model.exception.ExceptionMessages;
 import dev.miguel.usecase.user.validation.UserValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,6 +30,7 @@ class UserValidatorTest {
                 .apellidos("Mosquera")
                 .salarioBase(new BigDecimal("2500000"))
                 .correoElectronico("miguel@test.com")
+                .contrasenia("12345")
                 .build();
     }
 
