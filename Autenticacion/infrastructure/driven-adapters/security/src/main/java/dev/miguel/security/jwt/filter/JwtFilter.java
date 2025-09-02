@@ -41,7 +41,7 @@ public class JwtFilter implements WebFilter {
         
         String auth = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (auth == null || !auth.startsWith("Bearer ")) {
-            return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Falta autenticación"));
+            return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falta autenticación"));
         }
 
         String token = auth.substring(7);

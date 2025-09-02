@@ -28,13 +28,13 @@ public class GlobalErrorHandler {
     }
 
     @ExceptionHandler(SecurityException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ApiErrorResponse handleValidation(SecurityException ex) {
         return new ApiErrorResponse(List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(AuthorityException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiErrorResponse handleValidation(AuthorityException ex) {
         return new ApiErrorResponse(List.of(ex.getMessage()));
     }
