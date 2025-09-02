@@ -18,10 +18,11 @@ public class UserValidator {
 
     public Mono<Void> validateAll(User user) {
         return Flux.concat(
-                        validateNombre(user),
-                        validateApellido(user),
-                        validateSalario(user),
-                        validateEmail(user)
+                    validateNombre(user),
+                    validateApellido(user),
+                    validateSalario(user),
+                    validateEmail(user),
+                    validateContrasenia(user)
                 )
                 .collectList()
                 .flatMap(errors -> {
@@ -61,5 +62,11 @@ public class UserValidator {
         }
 
         return Mono.empty();
+    }
+
+    private Mono<String> validateContrasenia(User user) {
+        return (user.getContrasenia() == null || user.getContrasenia().isEmpty())
+                ? Mono.just(ExceptionMessages.CAMPO_CONTRASENIA_INVALIDO)
+                : Mono.empty();
     }
 }

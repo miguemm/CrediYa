@@ -12,6 +12,8 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 
     implementation "org.springdoc:springdoc-openapi-starter-webflux-ui:$springdocOpenapi"
+
+    implementation("org.springframework.boot:spring-boot-starter-security")
 }
 
 tasks.register('explodedJar', Copy) {

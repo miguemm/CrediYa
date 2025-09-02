@@ -84,6 +84,39 @@ class UserValidatorTest {
     }
 
     @Nested
+    @DisplayName("Validación de contrasenia")
+    class ContraseniaTests {
+
+        @Test
+        void contraseniaNull() {
+            User user = validUser().toBuilder().contrasenia(null).build();
+
+            StepVerifier.create(executor.validateAll(user))
+                    .expectErrorSatisfies(t ->
+                            expectArgumentExceptionWithMessages(
+                                    t,
+                                    List.of(ExceptionMessages.CAMPO_CONTRASENIA_INVALIDO)
+                            )
+                    )
+                    .verify();
+        }
+
+        @Test
+        void contraseniaVacio() {
+            User user = validUser().toBuilder().contrasenia("").build();
+
+            StepVerifier.create(executor.validateAll(user))
+                    .expectErrorSatisfies(t ->
+                            expectArgumentExceptionWithMessages(
+                                    t,
+                                    List.of(ExceptionMessages.CAMPO_CONTRASENIA_INVALIDO)
+                            )
+                    )
+                    .verify();
+        }
+    }
+
+    @Nested
     @DisplayName("Validación de apellido")
     class ApellidoTests {
 

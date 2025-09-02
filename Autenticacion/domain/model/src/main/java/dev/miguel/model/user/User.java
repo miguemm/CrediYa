@@ -19,6 +19,7 @@ public class User {
     private String direccion;
     private String telefono;
     private String correoElectronico;
+    private String contrasenia;
     private BigDecimal salarioBase;
     private Long rolId;
 

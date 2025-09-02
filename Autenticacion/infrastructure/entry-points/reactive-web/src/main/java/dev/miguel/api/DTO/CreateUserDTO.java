@@ -10,6 +10,7 @@ public record CreateUserDTO(
         String direccion,
         String telefono,
         String correoElectronico,
+        String contrasenia,
         BigDecimal salarioBase,
         Long rolId
 ) {

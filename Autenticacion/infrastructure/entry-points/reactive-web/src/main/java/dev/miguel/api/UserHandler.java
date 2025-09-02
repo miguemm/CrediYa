@@ -5,6 +5,7 @@ import dev.miguel.api.mapper.UserDtoMapper;
 import dev.miguel.usecase.user.gateways.IUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -15,11 +16,12 @@ import java.net.URI;
 @Component
 @RequiredArgsConstructor
 @Log4j2
-public class Handler {
+public class UserHandler {
 
     private final IUserUseCase userUseCase;
     private final UserDtoMapper userDtoMapper;
 
+    @PreAuthorize("hasAnyRole('asesor','administrador')")
     public Mono<ServerResponse> createUser(ServerRequest serverRequest) {
         log.info("--- Petición recibida en createUser ---");
 

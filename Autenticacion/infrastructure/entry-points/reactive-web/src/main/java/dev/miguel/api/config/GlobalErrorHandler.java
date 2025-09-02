@@ -2,6 +2,7 @@ package dev.miguel.api.config;
 
 import dev.miguel.api.DTO.ApiErrorResponse;
 import dev.miguel.usecase.exception.ArgumentException;
+import dev.miguel.usecase.exception.AuthException;
 import dev.miguel.usecase.exception.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,6 +23,12 @@ public class GlobalErrorHandler {
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrorResponse handleValidation(BusinessException ex) {
+        return new ApiErrorResponse(List.of(ex.getMessage()));
+    }
+
+    @ExceptionHandler(AuthException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiErrorResponse handleValidation(AuthException ex) {
         return new ApiErrorResponse(List.of(ex.getMessage()));
     }
 }

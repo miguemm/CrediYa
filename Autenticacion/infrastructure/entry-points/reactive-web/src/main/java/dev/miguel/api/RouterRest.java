@@ -2,7 +2,7 @@ package dev.miguel.api;
 
 import dev.miguel.api.DTO.ApiErrorResponse;
 import dev.miguel.api.DTO.CreateUserDTO;
-import dev.miguel.api.config.UsuarioPath;
+import dev.miguel.api.config.AppPaths;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,22 +19,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 @RequiredArgsConstructor
 public class RouterRest {
 
-    private final UsuarioPath usuarioPath;
-    private final Handler handler;
+    private final AppPaths appPaths;
+    private final UserHandler userHandler;
+    private final AuthenticationHandler authenticationHandler;
 
     @RouterOperations({
             @RouterOperation(
                     path = "/api/v1/usuario",
                     produces = { MediaType.APPLICATION_JSON_VALUE },
                     method = RequestMethod.POST,
-                    beanClass = Handler.class,
+                    beanClass = UserHandler.class,
                     beanMethod = "createUser",
                     operation = @Operation(
                             operationId = "createUser",
@@ -77,6 +77,9 @@ public class RouterRest {
     })
     @Bean
     public RouterFunction<ServerResponse> routerFunction() {
-        return route(POST(usuarioPath.getUsuario()), handler::createUser);
+        return route()
+                .POST(appPaths.getUsuario(), userHandler::createUser)
+                .POST(appPaths.getAuthentication(), authenticationHandler::logIn)
+                .build();
     }
 }

@@ -24,6 +24,8 @@ public class RolRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Boolean> existsById(Long id) {
+        log.info("Existe rol por id = {}", id);
+
         return super.findById(id)
                 .hasElement()
                 .doOnSuccess(exists -> {
@@ -34,5 +36,22 @@ public class RolRepositoryAdapter extends ReactiveAdapterOperations<
                     }
                 })
                 .doOnError(e -> log.error("Error verificando rol id={}", id, e));
+    }
+
+    @Override
+    public Mono<Rol> findRolById(Long id) {
+        log.info("Buscando rol por id = {}", id);
+
+        Rol rol = new Rol();
+        rol.setId(id);
+
+        return super.findByExample(rol)
+                .next()
+                .doOnNext(found -> log.info("Rol encontrado con id = {}: {}", id, found))
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró rol con id = {}", id);
+                    return Mono.empty();
+                }))
+                .doOnError(error -> log.error("Error al buscar rol por id = {}", id, error));
     }
 }
