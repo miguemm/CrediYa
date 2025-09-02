@@ -4,6 +4,7 @@ import dev.miguel.model.estado.gateways.EstadoRepository;
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
+import dev.miguel.model.userContext.UserContext;
 import dev.miguel.usecase.exception.BusinessException;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import dev.miguel.usecase.solicitud.validation.ExceptionMessages;
@@ -21,7 +22,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private final TipoPrestamoRepository tipoPrestamoRepository;
 
     @Override
-    public Mono<Void> createSolicitud(Solicitud solicitud) {
+    public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
         SolicitudValidator validator = new SolicitudValidator();
 
         return validator.validateAll(solicitud)
