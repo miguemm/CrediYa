@@ -42,7 +42,8 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchangeSpec -> exchangeSpec
                         .pathMatchers(WHITE_LIST_URL).permitAll()
-                        .anyExchange().authenticated())
+                        .anyExchange().authenticated()
+                )
                 .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.FIRST)
                 .securityContextRepository(securityContextRepository)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)

@@ -8,11 +8,14 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 
 @Configuration
 public class JwtProvider {
+
+    @Value("${jwt.secret}")
+    private String secret;
+    @Value("${jwt.secret-is-base64}")
+    private boolean secretIsB64;
+
     @Bean
-    public ReactiveJwtDecoder jwtDecoder(
-            @Value("${security.jwt.secret}") String secret,
-            @Value("${security.jwt.secret-is-base64:false}") boolean secretIsB64
-    ) {
+    public ReactiveJwtDecoder jwtDecoder() {
         // Usa exactamente el mismo formato que al firmar: texto plano vs Base64
         byte[] keyBytes = secretIsB64
                 ? java.util.Base64.getDecoder().decode(secret)
