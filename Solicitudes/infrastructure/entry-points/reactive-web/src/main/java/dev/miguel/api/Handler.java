@@ -6,12 +6,14 @@ import dev.miguel.model.userContext.UserContext;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor
@@ -41,8 +43,8 @@ public class Handler {
                 .doOnError(e -> log.error("Error en createSolicitud", e));
     }
 
-    private UserContext toUserContext(java.security.Principal p) {
-        if (p instanceof org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken jat) {
+    private UserContext toUserContext(Principal p) {
+        if (p instanceof JwtAuthenticationToken jat) {
             var jwt   = jat.getToken(); // org.springframework.security.oauth2.jwt.Jwt
             var id    = jwt.getSubject(); // "sub"
             var email = jwt.getClaimAsString("email"); // si lo incluyes
