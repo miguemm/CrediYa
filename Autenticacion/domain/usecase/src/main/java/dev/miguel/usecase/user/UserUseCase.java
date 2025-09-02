@@ -4,7 +4,7 @@ import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.Token;
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
-import dev.miguel.model.exception.SecurityException;
+import dev.miguel.model.exception.UnauthorizedException;
 import dev.miguel.model.exception.BusinessException;
 import dev.miguel.model.exception.ExceptionMessages;
 import dev.miguel.usecase.user.gateways.IUserUseCase;
@@ -51,12 +51,12 @@ public class UserUseCase implements IUserUseCase {
     @Override
     public Mono<Token> login(String email, String password) {
         return userRepository.findUserByEmail(email)
-                .switchIfEmpty(Mono.error(new SecurityException(ExceptionMessages.USUARIO_CORREO_NO_EXISTE)))
+                .switchIfEmpty(Mono.error(new UnauthorizedException(ExceptionMessages.USUARIO_CORREO_NO_EXISTE)))
                 .flatMap(user ->
                         securityProvider.validatePassword(user, password)
                                 .flatMap(validPassword -> {
                                     if (!validPassword) {
-                                        return Mono.error(new SecurityException(ExceptionMessages.USUARIO_CONTRASENIA_INCORRECTA));
+                                        return Mono.error(new UnauthorizedException(ExceptionMessages.USUARIO_CONTRASENIA_INCORRECTA));
                                     }
 
                                     return securityProvider.generateToken(user);

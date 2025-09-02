@@ -1,11 +1,11 @@
 package dev.miguel.usecase.solicitud;
 
 import dev.miguel.model.estado.gateways.EstadoRepository;
+import dev.miguel.model.exception.BusinessException;
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.model.userContext.UserContext;
-import dev.miguel.usecase.exception.BusinessException;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import dev.miguel.usecase.solicitud.validation.ExceptionMessages;
 import dev.miguel.usecase.solicitud.validation.SolicitudValidator;

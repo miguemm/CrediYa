@@ -1,4 +1,4 @@
-package dev.miguel.usecase.exception;
+package dev.miguel.model.exception;
 
 import lombok.Getter;
 

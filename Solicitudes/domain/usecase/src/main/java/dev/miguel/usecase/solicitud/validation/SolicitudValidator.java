@@ -1,7 +1,7 @@
 package dev.miguel.usecase.solicitud.validation;
 
+import dev.miguel.model.exception.ArgumentException;
 import dev.miguel.model.solicitud.Solicitud;
-import dev.miguel.usecase.exception.ArgumentException;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
