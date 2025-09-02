@@ -1,6 +1,6 @@
 package dev.miguel.security.repository;
 
-import dev.miguel.security.jwt.manager.JwtAuthenticationManager;
+import dev.miguel.security.jwt.manager.JwtManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -12,10 +12,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class SecurityContextRepository implements ServerSecurityContextRepository {
 
-    private final JwtAuthenticationManager jwtAuthenticationManager;
+    private final JwtManager jwtManager;
 
-    public SecurityContextRepository(JwtAuthenticationManager jwtAuthenticationManager) {
-        this.jwtAuthenticationManager = jwtAuthenticationManager;
+    public SecurityContextRepository(JwtManager jwtManager) {
+        this.jwtManager = jwtManager;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
     @Override
     public Mono<SecurityContext> load(ServerWebExchange exchange) {
         String token = exchange.getAttribute("token");
-        return jwtAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(token, token))
+        return jwtManager.authenticate(new UsernamePasswordAuthenticationToken(token, token))
                 .map(SecurityContextImpl::new);
     }
 }

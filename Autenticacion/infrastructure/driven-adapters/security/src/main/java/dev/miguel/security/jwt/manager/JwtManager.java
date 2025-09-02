@@ -11,11 +11,11 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
+public class JwtManager implements ReactiveAuthenticationManager {
 
     private final JwtProvider jwtProvider;
 
-    public JwtAuthenticationManager(JwtProvider jwtProvider) {
+    public JwtManager(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
     }
 
@@ -29,14 +29,14 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
                     List<SimpleGrantedAuthority> authorities;
                     if (rolesObj instanceof List<?> list) {
-                        // List<String>
+
                         authorities = list.stream()
                                 .map(Object::toString) // evitamos cast directo
                                 .map(this::normalizeRole)
                                 .map(SimpleGrantedAuthority::new)
                                 .toList();
                     } else if (rolesObj instanceof String s) {
-                        // String simple
+
                         authorities = List.of(new SimpleGrantedAuthority(normalizeRole(s)));
                     } else {
                         throw new IllegalArgumentException("Claim 'roles' debe ser List<String> o String");

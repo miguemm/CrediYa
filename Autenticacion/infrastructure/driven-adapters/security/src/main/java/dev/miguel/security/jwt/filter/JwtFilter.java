@@ -1,7 +1,5 @@
 package dev.miguel.security.jwt.filter;
 
-import dev.miguel.model.exception.BusinessException;
-import dev.miguel.model.exception.SecurityException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
