@@ -1,6 +1,6 @@
 package dev.miguel.r2dbc;
 
-import dev.miguel.model.solicitud.proyections.findAllSolicitudes;
+import dev.miguel.model.solicitud.proyections.FindSolicitudesDto;
 import dev.miguel.r2dbc.entity.SolicitudEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,21 +13,22 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
 
     @Query("""
         SELECT
-          s.solicitud_id AS solicitudId,
-          s.monto AS monto,
-          s.plazo AS plazo,
-          s.correo_electronico AS correoElectronico,
-          s.estado_id AS estadoId,
-          s.tipo_prestamo_id AS tipoPrestamoId,
-          s.usuario_id AS usuarioId
-        FROM solicitud s
-        WHERE (:estadoId IS NULL OR s.estado_id = :estadoId)
-          AND (:correo IS NULL OR s.correo_electronico = :correo)
-          AND (:tipoPrestamoId IS NULL OR s.tipo_prestamo_id = :tipoPrestamoId)
-        ORDER BY s.solicitud_id DESC
-        LIMIT :limit OFFSET :offset
+             s.solicitud_id AS solicitud_id,
+             s.monto,
+             s.plazo,
+             s.correo_electronico AS correo_electronico,
+             tipo.nombre     AS tipo_prestamo,
+             estado.nombre   AS estado
+           FROM solicitud s
+           JOIN tipo_prestamo tipo ON tipo.tipo_prestamo_id = s.tipo_prestamo_id
+           JOIN estado ON estado.estado_id = s.estado_id
+           WHERE (:estadoId IS NULL OR s.estado_id = :estadoId)
+             AND (:correo IS NULL OR s.correo_electronico = :correo)
+             AND (:tipoPrestamoId IS NULL OR s.tipo_prestamo_id = :tipoPrestamoId)
+           ORDER BY s.solicitud_id DESC
+           LIMIT :limit OFFSET :offset
     """)
-    Flux<findAllSolicitudes> findAllProjected(
+    Flux<FindSolicitudesDto> findAllProjected(
             @Param("estadoId") Long estadoId,
             @Param("correo") String correo,
             @Param("tipoPrestamoId") Long tipoPrestamoId,
@@ -38,6 +39,8 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
     @Query("""
         SELECT COUNT(*) 
         FROM solicitud s
+        JOIN tipo_prestamo tipo on tipo.tipo_prestamo_id = s.tipo_prestamo_id
+        JOIN estado on estado.estado_id = s.estado_id
         WHERE (:estadoId IS NULL OR s.estado_id = :estadoId)
           AND (:correo IS NULL OR s.correo_electronico = :correo)
           AND (:tipoPrestamoId IS NULL OR s.tipo_prestamo_id = :tipoPrestamoId)
@@ -47,5 +50,6 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
             @Param("correo") String correo,
             @Param("tipoPrestamoId") Long tipoPrestamoId
     );
+
 
 }

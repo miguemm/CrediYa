@@ -85,7 +85,7 @@ CREATE TABLE solicitud (
   correo_electronico VARCHAR(255) NOT NULL,
   estado_id         BIGINT NOT NULL,
   tipo_prestamo_id  BIGINT NOT NULL,
-  usuario_id        BIGINT,
+  usuario_id        BIGINT NOT NULL,
 
   CONSTRAINT chk_solicitud_email_not_blank
     CHECK (length(btrim(correo_electronico)) > 0),

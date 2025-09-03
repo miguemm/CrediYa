@@ -1,7 +1,7 @@
 package dev.miguel.usecase.solicitud;
 
 import dev.miguel.model.estado.gateways.EstadoRepository;
-import dev.miguel.model.solicitud.proyections.findAllSolicitudes;
+import dev.miguel.model.solicitud.proyections.FindSolicitudesDto;
 import dev.miguel.model.utils.exception.BusinessException;
 import dev.miguel.model.utils.exception.ForbiddenException;
 import dev.miguel.model.solicitud.Solicitud;
@@ -53,17 +53,17 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                         if (!estadoOk) return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
 
                         solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
+                        solicitud.setUsuarioId(Long.valueOf(user.id()));
                         return solicitudRepository.saveSolicitud(solicitud).then();
                     });
         });
     }
 
     @Override
-    public Mono<PageModel<findAllSolicitudes>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
+    public Mono<PageModel<FindSolicitudesDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
         FindAllValidator validator = new FindAllValidator();
 
         return Mono.defer(() -> {
-            // Debe tener rol "asesor"
             if (!hasSpecificRole(user, "asesor")) {
                 return Mono.error(new ForbiddenException("Solo los asesores pueden listar solicitudes."));
             }

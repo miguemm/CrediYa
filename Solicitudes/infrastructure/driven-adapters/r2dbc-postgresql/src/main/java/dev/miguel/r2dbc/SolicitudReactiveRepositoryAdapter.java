@@ -2,7 +2,7 @@ package dev.miguel.r2dbc;
 
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
-import dev.miguel.model.solicitud.proyections.findAllSolicitudes;
+import dev.miguel.model.solicitud.proyections.FindSolicitudesDto;
 import dev.miguel.model.utils.page.PageModel;
 import dev.miguel.r2dbc.entity.SolicitudEntity;
 import dev.miguel.r2dbc.helper.ReactiveAdapterOperations;
@@ -36,18 +36,18 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
     }
 
     @Override
-    public Mono<PageModel<findAllSolicitudes>> findAll(String correo, Long tipoPrestamoId, Long estadoId, int page, int size) {
+    public Mono<PageModel<FindSolicitudesDto>> findAll(String correo, Long tipoPrestamoId, Long estadoId, int page, int size) {
         long offset = (long) page * size;
 
-        Mono<List<findAllSolicitudes>> rows = repository.findAllProjected(estadoId, correo, tipoPrestamoId, size, offset).collectList();
+        Mono<List<FindSolicitudesDto>> rows = repository.findAllProjected(estadoId, correo, tipoPrestamoId, size, offset).collectList();
         Mono<Long> total = repository.countAllProjected(estadoId, correo, tipoPrestamoId);
 
         return Mono.zip(rows, total)
                 .map(t -> {
-                    var content = t.getT1();
+                    List<FindSolicitudesDto> content = t.getT1();
                     long totalElements = t.getT2();
                     int totalPages = (int) ((totalElements + size - 1) / size);
-                    return PageModel.<findAllSolicitudes>builder()
+                    return PageModel.<FindSolicitudesDto>builder()
                             .content(content)
                             .page(page)
                             .size(size)
