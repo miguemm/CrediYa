@@ -1,10 +1,10 @@
 package dev.miguel.api.config;
 
 import dev.miguel.api.DTO.ApiErrorResponse;
-import dev.miguel.model.exception.ArgumentException;
-import dev.miguel.model.exception.BusinessException;
-import dev.miguel.model.exception.ForbiddenException;
-import dev.miguel.model.exception.UnauthorizedException;
+import dev.miguel.model.utils.exception.ArgumentException;
+import dev.miguel.model.utils.exception.BusinessException;
+import dev.miguel.model.utils.exception.ForbiddenException;
+import dev.miguel.model.utils.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

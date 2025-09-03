@@ -67,8 +67,9 @@ public class RouterRest {
                     )
             )
     })
-    @Bean
-    public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(POST(solicitudPath.getSolicitud()), handler::createSolicitud);
+    @Bean public RouterFunction<ServerResponse> routerFunction() {
+        return route()
+                .POST(solicitudPath.getSolicitud(), handler::createSolicitud)
+                .GET(solicitudPath.getSolicitud(), handler::listAll) .build();
     }
 }

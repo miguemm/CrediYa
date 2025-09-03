@@ -1,7 +1,7 @@
 package dev.miguel.security.jwt;
 
-import dev.miguel.model.userContext.UserContext;
-import dev.miguel.model.userContext.gateways.IExtractUserContext;
+import dev.miguel.model.utils.userContext.UserContext;
+import dev.miguel.model.utils.userContext.gateways.IExtractUserContext;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

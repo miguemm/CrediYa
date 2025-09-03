@@ -1,7 +1,8 @@
-package dev.miguel.usecase.solicitud.validation;
+package dev.miguel.usecase.solicitud.validations;
 
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.usecase.exception.ArgumentException;
+import dev.miguel.usecase.solicitud.utils.ExceptionMessages;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

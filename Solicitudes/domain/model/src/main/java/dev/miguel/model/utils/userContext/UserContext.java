@@ -1,4 +1,4 @@
-package dev.miguel.model.userContext;
+package dev.miguel.model.utils.userContext;
 
 import java.util.List;
 
