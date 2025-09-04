@@ -17,4 +17,6 @@ public final class ExceptionMessages {
 
     public static final String USUARIO_CORREO_NO_EXISTE = "El correo no esta registrado.";
     public static final String USUARIO_CONTRASENIA_INCORRECTA = "Contraseña incorrecta.";
+
+    public static final String USUARIO_ID = "El usuario no esta registrado.";
 }

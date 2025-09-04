@@ -1,5 +1,6 @@
 package dev.miguel.model.solicitud.proyections;
 
+import dev.miguel.model.utils.userContext.UserDetails;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -10,13 +11,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @ToString
-public class FindSolicitudesDto {
+public class SolicitudDto {
 
+        Long usuarioId;
         Long solicitudId;
         BigDecimal monto;
         Integer plazo;
         String correoElectronico;
         String tipoPrestamo;
         String estado;
+        UserDetails user;
 
 }

@@ -78,6 +78,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction() {
         return route()
                 .POST(appPaths.getUsuario(), userHandler::createUser)
+                .GET(appPaths.getUsuario() + "/{id}", userHandler::getUserById)
                 .POST(appPaths.getAuthentication(), userHandler::logIn)
                 .build();
     }

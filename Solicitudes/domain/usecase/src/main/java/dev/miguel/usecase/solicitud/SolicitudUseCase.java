@@ -1,7 +1,7 @@
 package dev.miguel.usecase.solicitud;
 
 import dev.miguel.model.estado.gateways.EstadoRepository;
-import dev.miguel.model.solicitud.proyections.FindSolicitudesDto;
+import dev.miguel.model.solicitud.proyections.SolicitudDto;
 import dev.miguel.model.utils.exception.BusinessException;
 import dev.miguel.model.utils.exception.ForbiddenException;
 import dev.miguel.model.solicitud.Solicitud;
@@ -9,11 +9,13 @@ import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.model.utils.page.PageModel;
 import dev.miguel.model.utils.userContext.UserContext;
+import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import dev.miguel.usecase.solicitud.utils.ExceptionMessages;
 import dev.miguel.usecase.solicitud.validations.FindAllValidator;
 import dev.miguel.usecase.solicitud.validations.SolicitudValidator;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -24,6 +26,8 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private final SolicitudRepository solicitudRepository;
     private final EstadoRepository estadoRepository;
     private final TipoPrestamoRepository tipoPrestamoRepository;
+    private final IGetUserDetailsById getUserDetailsById;
+
 
     @Override
     public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
@@ -60,7 +64,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     }
 
     @Override
-    public Mono<PageModel<FindSolicitudesDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
+    public Mono<PageModel<SolicitudDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
         FindAllValidator validator = new FindAllValidator();
 
         return Mono.defer(() -> {
@@ -69,8 +73,28 @@ public class SolicitudUseCase implements ISolicitudUseCase {
             }
 
             return validator.validate(correoElectronico, tipoPrestamoId, estadoId, page, size)
-                    .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size));
+                    .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size))
+                    .flatMap(pageable -> {
+                        if (pageable.getContent().isEmpty()) {
+                            return Mono.just(pageable);
+                        }
 
+                        return Flux.fromIterable(pageable.getContent())
+                                .flatMap(dto ->
+                                                getUserDetailsById.getUserDetailsById(dto)
+                                                        .map(userDetails -> {
+                                                            dto.setUser(userDetails);
+                                                            return dto;
+                                                        })
+                                                        .onErrorResume(e -> Mono.just(dto)), 10
+
+                                )
+                                .collectList()
+                                .map(list -> {
+                                    pageable.setContent(list);
+                                    return pageable;
+                                });
+                    });
         });
     }
 

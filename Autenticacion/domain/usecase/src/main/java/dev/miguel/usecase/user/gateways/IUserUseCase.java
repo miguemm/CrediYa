@@ -8,6 +8,8 @@ public interface IUserUseCase {
 
     Mono<Void> createUser(User user);
 
+    Mono<User> getUserById(Long userId);
+
     Mono<Token> login(String email , String password);
 
 }

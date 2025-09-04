@@ -39,6 +39,17 @@ public class UserHandler {
                 .doOnError(error -> log.error("Error en createUser", error));
     }
 
+    @PreAuthorize("hasAnyRole('asesor')")
+    public Mono<ServerResponse> getUserById(ServerRequest req) {
+        Long id = Long.valueOf(req.pathVariable("id"));
+        return userUseCase.getUserById(id)
+                .flatMap(response -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(response)
+                )
+                .doOnError(error -> log.error("Error en logIn", error));
+    }
+
     public Mono<ServerResponse> logIn(ServerRequest request) {
         log.info("--- Petición recibida en logIn ---");
 

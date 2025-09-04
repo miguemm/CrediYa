@@ -1,6 +1,6 @@
 package dev.miguel.r2dbc;
 
-import dev.miguel.model.solicitud.proyections.FindSolicitudesDto;
+import dev.miguel.model.solicitud.proyections.SolicitudDto;
 import dev.miguel.r2dbc.entity.SolicitudEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +13,7 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
 
     @Query("""
         SELECT
+            s.usuario_id AS usuario_id,
              s.solicitud_id AS solicitud_id,
              s.monto,
              s.plazo,
@@ -28,7 +29,7 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
            ORDER BY s.solicitud_id DESC
            LIMIT :limit OFFSET :offset
     """)
-    Flux<FindSolicitudesDto> findAllProjected(
+    Flux<SolicitudDto> findAllProjected(
             @Param("estadoId") Long estadoId,
             @Param("correo") String correo,
             @Param("tipoPrestamoId") Long tipoPrestamoId,

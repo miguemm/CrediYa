@@ -47,6 +47,12 @@ public class UserUseCase implements IUserUseCase {
                 .then();
     }
 
+    @Override
+    public Mono<User> getUserById(Long userId) {
+        return userRepository.findUserById(userId)
+                .switchIfEmpty(Mono.error(new UnauthorizedException(ExceptionMessages.USUARIO_ID)));
+    }
+
 
     @Override
     public Mono<Token> login(String email, String password) {
