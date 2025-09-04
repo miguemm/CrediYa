@@ -41,7 +41,6 @@ class UserUseCaseTest {
     @Mock
     ISecurityProvider securityProvider;
 
-    // Helpers
     private User validUser() {
         return User.builder()
                 .nombres("Miguel")

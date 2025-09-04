@@ -1,7 +1,7 @@
 package dev.miguel.usecase.solicitud.validations;
 
 import dev.miguel.model.solicitud.Solicitud;
-import dev.miguel.usecase.exception.ArgumentException;
+import dev.miguel.model.utils.exceptions.ArgumentException;
 import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,10 +17,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SolicitudValidatorTest {
+public class ValidatorSolicitudUseCaseTest {
 
     @InjectMocks
-    private SolicitudValidator solicitudValidator;
+    private ValidatorSolicitudUseCase validator;
 
     private Solicitud solicitud() {
         return Solicitud.builder()
@@ -35,14 +35,14 @@ public class SolicitudValidatorTest {
 
     @Test
     @DisplayName("Validate all ok")
-    void validateAll_ok() {
-        StepVerifier.create(solicitudValidator.validateAll(solicitud()))
+    void validateCreateBody_ok() {
+        StepVerifier.create(validator.validateCreateBody(solicitud()))
                 .verifyComplete();
     }
 
     @Nested
-    @DisplayName("Validator ")
-    class NombreTests {
+    @DisplayName("validateCreateBody ")
+    class validateCreateBody {
 
         private void expectArgumentExceptionWithMessages(Throwable t, List<String> expected) {
             assertInstanceOf(ArgumentException.class, t, "Debe lanzar ArgumentException");
@@ -56,7 +56,7 @@ public class SolicitudValidatorTest {
         void montoNull() {
             Solicitud solicitud = solicitud().toBuilder().monto(null).build();
 
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_MONTO_INVALIDO));
                     })
@@ -65,11 +65,9 @@ public class SolicitudValidatorTest {
 
         @Test
         void montoNegative() {
-            // Arrange
             Solicitud solicitud = solicitud().toBuilder().monto(BigDecimal.valueOf(-5)).build();
 
-            // Act + Assert
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_MONTO_INVALIDO));
                     })
@@ -80,7 +78,7 @@ public class SolicitudValidatorTest {
         void plazoNull() {
             Solicitud solicitud = solicitud().toBuilder().plazo(null).build();
 
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_PLAZO_INVALIDO));
                     })
@@ -89,11 +87,9 @@ public class SolicitudValidatorTest {
 
         @Test
         void plazoNegative() {
-            // Arrange
             Solicitud solicitud = solicitud().toBuilder().plazo(-1).build();
 
-            // Act + Assert
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_PLAZO_INVALIDO));
                     })
@@ -104,7 +100,7 @@ public class SolicitudValidatorTest {
         void correoNull() {
             Solicitud solicitud = solicitud().toBuilder().correoElectronico(null).build();
 
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO));
                     })
@@ -113,11 +109,9 @@ public class SolicitudValidatorTest {
 
         @Test
         void emailVacio() {
-            // Arrange
             Solicitud solicitud = solicitud().toBuilder().correoElectronico("").build();
 
-            // Act + Assert
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.CAMPO_EMAIL_INVALIDO));
                     })
@@ -126,18 +120,57 @@ public class SolicitudValidatorTest {
 
         @Test
         void emailNoValido() {
-            // Arrange
             Solicitud solicitud = solicitud().toBuilder().correoElectronico("abc").build();
-
-            // Act + Assert
-            StepVerifier.create(solicitudValidator.validateAll(solicitud))
+            
+            StepVerifier.create(validator.validateCreateBody(solicitud))
                     .expectErrorSatisfies(t -> {
                         expectArgumentExceptionWithMessages(t, List.of(ExceptionMessages.FORMATO_EMAIL_INVALIDO));
                     })
                     .verify();
         }
 
+    }
 
+    @Nested
+    @DisplayName("validateFindAll ")
+    class validateFindAll {
+        @Test
+        @DisplayName("OK: email null no lanza error")
+        void validateFindAll_email_null() {
+            StepVerifier.create(validator.validateFindAll(null, null, null, 0, 10))
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("Error: email vacío -> CAMPO_EMAIL_INVALIDO")
+        void validateFindAll_email_vacio() {
+            StepVerifier.create(validator.validateFindAll("   ", null, null, 0, 10))
+                    .expectErrorSatisfies(err -> {
+                        assertTrue(err instanceof ArgumentException);
+                        ArgumentException ex = (ArgumentException) err;
+                        assertTrue(ex.getErrors().contains(ExceptionMessages.CAMPO_EMAIL_INVALIDO));
+                    })
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("Error: email con formato inválido -> FORMATO_EMAIL_INVALIDO")
+        void validateFindAll_email_invalido() {
+            StepVerifier.create(validator.validateFindAll("correo-malo", null, null, 0, 10))
+                    .expectErrorSatisfies(err -> {
+                        assertTrue(err instanceof ArgumentException);
+                        ArgumentException ex = (ArgumentException) err;
+                        assertTrue(ex.getErrors().contains(ExceptionMessages.FORMATO_EMAIL_INVALIDO));
+                    })
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("OK: email válido no lanza error")
+        void validateFindAll_email_valido() {
+            StepVerifier.create(validator.validateFindAll("usuario@test.com", null, null, 0, 10))
+                    .verifyComplete();
+        }
     }
 
 }

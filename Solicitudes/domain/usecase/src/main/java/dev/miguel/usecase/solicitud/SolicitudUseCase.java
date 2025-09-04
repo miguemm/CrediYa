@@ -12,8 +12,7 @@ import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import dev.miguel.model.utils.exceptions.ExceptionMessages;
-import dev.miguel.usecase.solicitud.validations.FindAllValidator;
-import dev.miguel.usecase.solicitud.validations.SolicitudValidator;
+import dev.miguel.usecase.solicitud.validations.ValidatorSolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,13 +25,13 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private final SolicitudRepository solicitudRepository;
     private final EstadoRepository estadoRepository;
     private final TipoPrestamoRepository tipoPrestamoRepository;
+
     private final IGetUserDetailsById getUserDetailsById;
 
+    private final ValidatorSolicitudUseCase validator;
 
     @Override
     public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
-        SolicitudValidator validator = new SolicitudValidator();
-
         return Mono.defer(() -> {
             // Debe tener rol "cliente"
             if (!hasSpecificRole(user, "cliente")) {
@@ -44,7 +43,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                 return Mono.error(new ForbiddenException("No puedes crear solicitudes en nombre de otro usuario."));
             }
 
-            return validator.validateAll(solicitud)
+            return validator.validateCreateBody(solicitud)
                     .then(Mono.zip(
                             tipoPrestamoRepository.existsTipoPrestamoById(solicitud.getTipoPrestamoId()),
                             estadoRepository.existsEstadoById(ESTADO_PENDIENTE_REVISION_ID)
@@ -65,14 +64,12 @@ public class SolicitudUseCase implements ISolicitudUseCase {
 
     @Override
     public Mono<PageModel<SolicitudDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
-        FindAllValidator validator = new FindAllValidator();
-
         return Mono.defer(() -> {
             if (!hasSpecificRole(user, "asesor")) {
                 return Mono.error(new ForbiddenException("Solo los asesores pueden listar solicitudes."));
             }
 
-            return validator.validate(correoElectronico, tipoPrestamoId, estadoId, page, size)
+            return validator.validateFindAll(correoElectronico, tipoPrestamoId, estadoId, page, size)
                     .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size))
                     .flatMap(pageable -> {
                         if (pageable.getContent().isEmpty()) {

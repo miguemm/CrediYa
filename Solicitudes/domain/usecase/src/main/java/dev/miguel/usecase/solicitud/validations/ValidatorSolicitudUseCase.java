@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @AllArgsConstructor
-public class SolicitudValidator {
+public class ValidatorSolicitudUseCase {
 
     private static final BigDecimal MONTO_MIN = BigDecimal.ZERO;
 
-    public Mono<Void> validateAll (Solicitud solicitud){
+    public Mono<Void> validateCreateBody(Solicitud solicitud){
             return Flux.concat(
                     validateMonto(solicitud),
                     validatePlazo(solicitud),
@@ -48,6 +48,36 @@ public class SolicitudValidator {
 
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!solicitud.getCorreoElectronico().matches(emailRegex)) {
+            return Mono.just(ExceptionMessages.FORMATO_EMAIL_INVALIDO);
+        }
+
+        return Mono.empty();
+    }
+
+    public Mono<Void> validateFindAll (String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size){
+        return Flux.concat(
+                        validateFindAllEmail(correoElectronico)
+                ).collectList()
+                .flatMap(errors -> {
+                    var real = errors.stream().filter(Objects::nonNull).toList();
+                    return real.isEmpty()
+                            ? Mono.empty()
+                            : Mono.error(new ArgumentException(real));
+                });
+    }
+
+    private Mono<String> validateFindAllEmail(String email) {
+        if (email == null) {
+            return Mono.empty();
+        }
+
+        String value = email.trim();
+        if (value.isEmpty()) {
+            return Mono.just(ExceptionMessages.CAMPO_EMAIL_INVALIDO);
+        }
+
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        if (!email.matches(emailRegex)) {
             return Mono.just(ExceptionMessages.FORMATO_EMAIL_INVALIDO);
         }
 
