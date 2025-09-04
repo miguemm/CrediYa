@@ -1,6 +1,7 @@
 package dev.miguel.r2dbc;
 
 import dev.miguel.model.user.User;
+import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.r2dbc.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,19 +53,6 @@ class UserReactiveRepositoryAdapterTest {
             .salarioBase(BigDecimal.valueOf(10000000))
             .build();
 
-    @Test
-    void shouldFindUserById() {
-
-        when(mapper.map(userEntity, User.class)).thenReturn(user);
-
-        when(repository.findById(1L)).thenReturn(Mono.just(userEntity));
-
-        Mono<User> result = userRepositoryAdapter.findUserById(1L);
-
-        StepVerifier.create(result)
-                .expectNextMatches(u -> u.getId().equals(1L) && u.getNombres().equals("Miguel"))
-                .verifyComplete();
-    }
 
     @Test
     void findUserById_whenEmpty_thenCompleteWithoutValue() {

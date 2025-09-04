@@ -2,6 +2,7 @@ package dev.miguel.r2dbc;
 
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
+import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.r2dbc.entity.UserEntity;
 import dev.miguel.r2dbc.helper.ReactiveAdapterOperations;
 import lombok.extern.log4j.Log4j2;
@@ -33,10 +34,11 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
     }
 
     @Override
-    public Mono<User> findUserById(Long id) {
+    public Mono<UserDetails> findUserById(Long id) {
         log.info("Buscando usuario por id={}", id);
 
         return super.findById(id)
+                .map(user -> mapper.map(user, UserDetails.class))
                 .doOnNext(user -> log.info("Usuario encontrado: {}", user))
                 .switchIfEmpty(Mono.defer(() -> {
                     log.warn("No se encontró usuario con id = {}", id);

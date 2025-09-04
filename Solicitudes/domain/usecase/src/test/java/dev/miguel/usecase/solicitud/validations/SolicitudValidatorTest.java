@@ -2,7 +2,7 @@ package dev.miguel.usecase.solicitud.validations;
 
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.usecase.exception.ArgumentException;
-import dev.miguel.model.utils.exception.ExceptionMessages;
+import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

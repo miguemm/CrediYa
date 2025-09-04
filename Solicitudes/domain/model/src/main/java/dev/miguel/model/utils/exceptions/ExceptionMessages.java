@@ -1,4 +1,4 @@
-package dev.miguel.model.utils.exception;
+package dev.miguel.model.utils.exceptions;
 
 public final class ExceptionMessages {
 

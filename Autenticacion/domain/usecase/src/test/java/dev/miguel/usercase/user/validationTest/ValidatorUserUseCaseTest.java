@@ -1,9 +1,9 @@
 package dev.miguel.usercase.user.validationTest;
 
 import dev.miguel.model.user.User;
-import dev.miguel.model.utils.exception.ArgumentException;
-import dev.miguel.model.utils.exception.ExceptionMessages;
-import dev.miguel.usecase.user.validation.UserValidator;
+import dev.miguel.model.utils.exceptions.ArgumentException;
+import dev.miguel.model.utils.exceptions.ExceptionMessages;
+import dev.miguel.usecase.user.validation.ValidatorUserUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserValidatorTest {
+class ValidatorUserUseCaseTest {
 
     @InjectMocks
-    private UserValidator executor;
+    private ValidatorUserUseCase executor;
 
     // --- Helpers ---
     private User validUser() {
@@ -47,7 +47,7 @@ class UserValidatorTest {
     void validUserShouldCompleteEmpty() {
         User user = validUser();
 
-        StepVerifier.create(executor.validateAll(user))
+        StepVerifier.create(executor.validateCreateBody(user))
                 .verifyComplete();
     }
 
@@ -59,7 +59,7 @@ class UserValidatorTest {
         void nombreNull() {
             User user = validUser().toBuilder().nombres(null).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -73,7 +73,7 @@ class UserValidatorTest {
         void nombreVacio() {
             User user = validUser().toBuilder().nombres("").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -92,7 +92,7 @@ class UserValidatorTest {
         void contraseniaNull() {
             User user = validUser().toBuilder().contrasenia(null).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -106,7 +106,7 @@ class UserValidatorTest {
         void contraseniaVacio() {
             User user = validUser().toBuilder().contrasenia("").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -125,7 +125,7 @@ class UserValidatorTest {
         void apellidoNull() {
             User user = validUser().toBuilder().apellidos(null).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -139,7 +139,7 @@ class UserValidatorTest {
         void apellidoVacio() {
             User user = validUser().toBuilder().apellidos("").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -158,7 +158,7 @@ class UserValidatorTest {
         void salarioNull() {
             User user = validUser().toBuilder().salarioBase(null).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -172,7 +172,7 @@ class UserValidatorTest {
         void salarioNegativo() {
             User user = validUser().toBuilder().salarioBase(new BigDecimal("-1")).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -186,7 +186,7 @@ class UserValidatorTest {
         void salarioMayorQueMaximo() {
             User user = validUser().toBuilder().salarioBase(new BigDecimal("15000001")).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -205,7 +205,7 @@ class UserValidatorTest {
         void emailNull() {
             User user = validUser().toBuilder().correoElectronico(null).build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -219,7 +219,7 @@ class UserValidatorTest {
         void emailVacio() {
             User user = validUser().toBuilder().correoElectronico("").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -233,7 +233,7 @@ class UserValidatorTest {
         void emailFormatoInvalido() {
             User user = validUser().toBuilder().correoElectronico("bad@").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .expectErrorSatisfies(t ->
                             expectArgumentExceptionWithMessages(
                                     t,
@@ -247,7 +247,7 @@ class UserValidatorTest {
         void emailFormatoValido() {
             User user = validUser().toBuilder().correoElectronico("user.name+alias@dominio.co").build();
 
-            StepVerifier.create(executor.validateAll(user))
+            StepVerifier.create(executor.validateCreateBody(user))
                     .verifyComplete();
         }
     }
@@ -262,7 +262,7 @@ class UserValidatorTest {
                 .correoElectronico("bad@")
                 .build();
 
-        StepVerifier.create(executor.validateAll(user))
+        StepVerifier.create(executor.validateCreateBody(user))
                 .expectErrorSatisfies(t ->
                         expectArgumentExceptionWithMessages(
                                 t,

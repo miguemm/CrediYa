@@ -1,8 +1,8 @@
 package dev.miguel.usecase.user.validation;
 
 import dev.miguel.model.user.User;
-import dev.miguel.model.utils.exception.ArgumentException;
-import dev.miguel.model.utils.exception.ExceptionMessages;
+import dev.miguel.model.utils.exceptions.ArgumentException;
+import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,12 +11,12 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @AllArgsConstructor
-public class UserValidator {
+public class ValidatorUserUseCase {
 
     private static final BigDecimal SALARIO_MIN = BigDecimal.ZERO;                // 0
     private static final BigDecimal SALARIO_MAX = new BigDecimal("15000000");
 
-    public Mono<Void> validateAll(User user) {
+    public Mono<Void> validateCreateBody(User user) {
         return Flux.concat(
                     validateNombre(user),
                     validateApellido(user),

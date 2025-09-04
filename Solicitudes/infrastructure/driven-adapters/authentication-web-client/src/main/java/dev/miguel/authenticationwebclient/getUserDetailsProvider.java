@@ -1,7 +1,7 @@
 package dev.miguel.authenticationwebclient;
 
 import dev.miguel.model.solicitud.proyections.SolicitudDto;
-import dev.miguel.model.utils.exception.BusinessException;
+import dev.miguel.model.utils.exceptions.BusinessException;
 import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import lombok.AllArgsConstructor;

@@ -3,7 +3,7 @@ package dev.miguel.api;
 import dev.miguel.api.DTO.CreateSolicitudDTO;
 import dev.miguel.api.mapper.ParamMapper;
 import dev.miguel.api.mapper.SolicitudDtoMapper;
-import dev.miguel.model.utils.exception.UnauthorizedException;
+import dev.miguel.model.utils.exceptions.UnauthorizedException;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IExtractUserContext;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
