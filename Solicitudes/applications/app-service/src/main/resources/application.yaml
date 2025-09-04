@@ -41,10 +41,9 @@ jwt:
   secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
   secret-is-base64: true
 
-security:
-  internal:
-    serviceToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzb2xpY2l0dWRlcy1tcyIsImF1ZCI6ImF1dGgtbXMiLCJjbGllbnRfaWQiOiJzb2xpY2l0dWRlcy1tcyIsInJvbGVzIjpbIm1pY3JvX3NvbGljaXR1ZCJdLCJpYXQiOjE3MjUzMzM5NjgsIm5iZiI6MTcyNTMzMzk2MywiZXhwIjoxNzcyNDk3OTYzfQ.5LeLPQG3FXNyl2zKSWMM8qY7uIDyCMRGsQY4sSxg3i0
-"
+webClient:
+    microAutenticacion:  "http://localhost:8081/api/v1/usuario"
+
 
 #logging:
 #  level:

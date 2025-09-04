@@ -12,9 +12,9 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class WebClientConfig {
     @Bean
-    public WebClient userWebClient(WebClient.Builder builder, @Value("${security.internal.serviceToken}") String serviceToken) {
+    public WebClient userWebClient(WebClient.Builder builder, @Value("${webClient.microAutenticacion}") String microAutenticacion) {
         return builder
-                .baseUrl("http://localhost:8081/api/v1/usuario")
+                .baseUrl(microAutenticacion)
                 .filter((request, next) ->
                         Mono.deferContextual(ctx -> {
                             ClientRequest.Builder b = ClientRequest.from(request);
