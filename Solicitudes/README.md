@@ -104,3 +104,5 @@ CREATE TABLE solicitud (
 CREATE INDEX idx_solicitud_estado ON solicitud (estado_id);
 CREATE INDEX idx_solicitud_tipo_prestamo ON solicitud (tipo_prestamo_id);
 ```
+
+docker compose up -d --build
