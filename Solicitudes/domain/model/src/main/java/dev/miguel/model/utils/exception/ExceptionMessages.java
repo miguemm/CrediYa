@@ -1,4 +1,4 @@
-package dev.miguel.usecase.solicitud.utils;
+package dev.miguel.model.utils.exception;
 
 public final class ExceptionMessages {
 

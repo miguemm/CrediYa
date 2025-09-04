@@ -1,6 +1,6 @@
 package dev.miguel.usecase.solicitud.validations;
 
-import dev.miguel.usecase.solicitud.utils.ExceptionMessages;
+import dev.miguel.model.utils.exception.ExceptionMessages;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

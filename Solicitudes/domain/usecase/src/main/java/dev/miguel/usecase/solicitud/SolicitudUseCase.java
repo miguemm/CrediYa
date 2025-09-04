@@ -11,7 +11,7 @@ import dev.miguel.model.utils.page.PageModel;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
-import dev.miguel.usecase.solicitud.utils.ExceptionMessages;
+import dev.miguel.model.utils.exception.ExceptionMessages;
 import dev.miguel.usecase.solicitud.validations.FindAllValidator;
 import dev.miguel.usecase.solicitud.validations.SolicitudValidator;
 import lombok.RequiredArgsConstructor;

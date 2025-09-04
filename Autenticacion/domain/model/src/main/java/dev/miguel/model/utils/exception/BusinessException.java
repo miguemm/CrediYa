@@ -1,4 +1,4 @@
-package dev.miguel.model.exception;
+package dev.miguel.model.utils.exception;
 
 import lombok.Getter;
 

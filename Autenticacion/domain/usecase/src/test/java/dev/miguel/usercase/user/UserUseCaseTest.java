@@ -3,7 +3,7 @@ package dev.miguel.usercase.user;
 import dev.miguel.model.rol.gateways.RolRepository;
 import dev.miguel.model.user.User;
 import dev.miguel.model.user.gateways.UserRepository;
-import dev.miguel.model.exception.BusinessException;
+import dev.miguel.model.utils.exception.BusinessException;
 import dev.miguel.usecase.user.UserUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

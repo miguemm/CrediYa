@@ -1,6 +1,6 @@
 package dev.miguel.usercase.user;
 
-import dev.miguel.model.exception.ExceptionMessages;
+import dev.miguel.model.utils.exception.ExceptionMessages;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
