@@ -1,39 +1,31 @@
 services:
-  postgres-hu1:
+  postgres-solicitudes:
     image: postgres:17
-    environment:
-      POSTGRES_DB: perylothdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+    env_file:
+      - .env
     volumes:
-      - pg_data_hu1:/var/lib/postgresql/data
+      - pg_data_solicitudes:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d perylothdb" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 3s
       retries: 10
     networks:
       - bootcamp_network
 
-  app-service-hu1:
+  app-service-solicitudes:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: deployment/Dockerfile
     depends_on:
-      - postgres-hu1
-    environment:
-      POSTGRES_HOST: postgres-hu1
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: perylothdb
-      schema: "public"
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      CORS_ALLOWED_ORIGINS: "http://localhost:4200,http://localhost:8080"
+      - postgres-solicitudes
     networks:
       - bootcamp_network
 
 volumes:
-  pg_data_hu1:
+  pg_data_solicitudes:
 
 networks:
   bootcamp_network:

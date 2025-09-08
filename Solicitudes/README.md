@@ -87,16 +87,13 @@ CREATE TABLE solicitud (
   tipo_prestamo_id  BIGINT NOT NULL,
   usuario_id        BIGINT NOT NULL,
 
-  CONSTRAINT chk_solicitud_email_not_blank
-    CHECK (length(btrim(correo_electronico)) > 0),
+  CONSTRAINT chk_solicitud_email_not_blank CHECK (length(btrim(correo_electronico)) > 0),
 
-  CONSTRAINT fk_solicitud_estado
-    FOREIGN KEY (estado_id) REFERENCES estado(estado_id)
+  CONSTRAINT fk_solicitud_estado FOREIGN KEY (estado_id) REFERENCES estado(estado_id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT,
 
-  CONSTRAINT fk_solicitud_tipo_prestamo
-    FOREIGN KEY (tipo_prestamo_id) REFERENCES tipo_prestamo(tipo_prestamo_id)
+  CONSTRAINT fk_solicitud_tipo_prestamo FOREIGN KEY (tipo_prestamo_id) REFERENCES tipo_prestamo(tipo_prestamo_id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT
 );
