@@ -88,3 +88,11 @@ CREATE TABLE usuario (
 
 CREATE INDEX idx_usuario_rol_id ON usuario (rol_id);
 ```
+
+docker network ls
+
+docker network create bootcamp_network
+
+docker compose down
+
+docker compose up -d --build

@@ -1,13 +1,9 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
     name: "Autenticacion"
-  devtools:
-    add-properties: false
-  profiles:
-    include: null
 
 management:
   endpoints:
@@ -19,23 +15,23 @@ management:
       probes:
         enabled: true
 
-adapters:
-  r2dbc:
-    host: "localhost"
-    port: 5432
-    database: "autenticacion"
-    schema: "public"
-    username: "postgres"
-    password: "root"
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
 
 routes:
   paths:
-    usuario: "/api/v1/usuario"
-    authentication: "/api/v1/auth"
+    usuario: ${ROUTE_USUARIO:/api/v1/usuario}
+    authentication: ${ROUTE_AUTENTICACION:/api/v1/auth}
 
-cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8080"
+adapters:
+  r2dbc:
+    host: ${POSTGRES_HOST:localhost}
+    port: ${POSTGRES_PORT:5432}
+    database: ${POSTGRES_DB:autenticacion}
+    schema: ${POSTGRES_SCHEMA:public}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
 
 jwt:
-  secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
-  expiration: 86400000
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000}
