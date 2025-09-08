@@ -1,5 +1,6 @@
 package dev.miguel.security.jwt.manager;
 
+import dev.miguel.model.utils.exceptions.UnauthorizedException;
 import dev.miguel.security.jwt.provider.JwtProvider;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +24,7 @@ public class JwtManager implements ReactiveAuthenticationManager {
     public Mono<Authentication> authenticate(Authentication authentication) {
         return Mono.just(authentication)
                 .map(auth -> jwtProvider.getClaims(auth.getCredentials().toString()))
-                .onErrorResume(e -> Mono.error(new Throwable("bad token")))
+                .onErrorResume(e -> Mono.error(new UnauthorizedException("bad token")))
                 .map(claims -> {
                     Object rolesObj = claims.get("roles");
 
