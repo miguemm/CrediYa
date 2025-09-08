@@ -28,13 +28,20 @@ routes:
     solicitud: "/api/v1/solicitud"
 
 adapters:
+#  r2dbc:
+#    host: "localhost"
+#    port: 5432
+#    database: "solicitudes"
+#    schema: "public"
+#    username: "postgres"
+#    password: "root"
   r2dbc:
-    host: "localhost"
+    host: "postgres-hu1"
     port: 5432
-    database: "solicitudes"
+    database: "perylothdb"
     schema: "public"
-    username: "postgres"
-    password: "root"
+    username: "user"
+    password: "password"
 
 
 jwt:
