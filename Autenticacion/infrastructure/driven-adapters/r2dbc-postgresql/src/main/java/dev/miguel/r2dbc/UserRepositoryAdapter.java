@@ -8,6 +8,7 @@ import dev.miguel.r2dbc.helper.ReactiveAdapterOperations;
 import lombok.extern.log4j.Log4j2;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -19,9 +20,11 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
         UserReactiveRepository
 > implements UserRepository {
 
+    private final TransactionalOperator tx;
 
-    public UserRepositoryAdapter(UserReactiveRepository repository, ObjectMapper mapper) {
+    public UserRepositoryAdapter(UserReactiveRepository repository, ObjectMapper mapper, TransactionalOperator tx) {
         super(repository, mapper, entity -> mapper.map(entity, User.class));
+        this.tx = tx;
     }
 
     @Override
@@ -30,7 +33,8 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
 
         return super.save(user)
                 .doOnSuccess(saved -> log.info("Usuario creado con id = {}", saved.getId()))
-                .doOnError(e -> log.error("Error al guardar usuario: {}", user, e));
+                .doOnError(e -> log.error("Error al guardar usuario: {}", user, e))
+                .as(tx::transactional);
     }
 
     @Override

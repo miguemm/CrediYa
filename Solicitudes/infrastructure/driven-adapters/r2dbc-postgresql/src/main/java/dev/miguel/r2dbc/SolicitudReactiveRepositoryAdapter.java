@@ -9,6 +9,7 @@ import dev.miguel.r2dbc.helper.ReactiveAdapterOperations;
 import lombok.extern.log4j.Log4j2;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,8 +23,11 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
         SolicitudReactiveRepository
 > implements SolicitudRepository {
 
-    public SolicitudReactiveRepositoryAdapter(SolicitudReactiveRepository repository, ObjectMapper mapper) {
+    private final TransactionalOperator tx;
+
+    public SolicitudReactiveRepositoryAdapter(SolicitudReactiveRepository repository, ObjectMapper mapper, TransactionalOperator tx) {
         super(repository, mapper, entity -> mapper.map(entity, Solicitud.class));
+        this.tx = tx;
     }
 
     @Override
@@ -32,7 +36,8 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
 
         return super.save(solicitud)
                 .doOnNext(saved -> log.info("Solicitud creada con id = {}", saved.getId()))
-                .doOnError(error -> log.error("Error al guardar solicitud: {}", solicitud, error));
+                .doOnError(error -> log.error("Error al guardar solicitud: {}", solicitud, error))
+                .as(tx::transactional);
     }
 
     @Override
