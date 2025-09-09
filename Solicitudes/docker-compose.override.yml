@@ -1,7 +1,7 @@
 services:
   postgres-solicitudes:
     ports:
-      - "5433:5432"
+      - "5433:${POSTGRES_PORT}"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
