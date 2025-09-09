@@ -1,0 +1,111 @@
+# docker-compose.yml (raíz)
+
+volumes:
+  pg_data_autenticacion:
+  pg_data_solicitudes:
+
+networks:
+  crediya_net:
+
+services:
+  # ===================== AUTENTICACIÓN =====================
+  postgres-autenticacion:
+    image: postgres:17
+    ports:
+      - "${ATENTICACION_POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_DB:          ${ATENTICACION_POSTGRES_DB}
+      POSTGRES_USER:        ${ATENTICACION_POSTGRES_USER}
+      POSTGRES_PASSWORD:    ${ATENTICACION_POSTGRES_PASSWORD}
+    volumes:
+      - pg_data_autenticacion:/var/lib/postgresql/data
+      - ./Autenticacion/deployment/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [crediya_net]
+
+  app-autenticacion:
+    image: crediya/autenticacion:1.0.0
+    build:
+      context: ./Autenticacion
+      dockerfile: deployment/Dockerfile
+    env_file:
+      - ./Autenticacion/deployment/.env
+    environment:
+      # Server
+      SERVER_PORT:            ${ATENTICACION_SERVER_PORT}
+
+      # CORS / JWT
+      CORS_ALLOWED_ORIGINS:   ${CORS_ALLOWED_ORIGINS}
+      JWT_SECRET:             ${JWT_SECRET}
+      JWT_EXPIRATION:         ${JWT_EXPIRATION}
+
+      # Rutas
+      ROUTE_USUARIO:          ${ROUTE_USUARIO}
+      ROUTE_AUTENTICACION:    ${ROUTE_AUTENTICACION}
+
+      # R2DBC
+      SPRING_R2DBC_URL: r2dbc:postgresql://${ATENTICACION_POSTGRES_HOST}:${ATENTICACION_POSTGRES_PORT}/${ATENTICACION_POSTGRES_DB}
+      SPRING_R2DBC_USERNAME:  ${ATENTICACION_POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD:  ${ATENTICACION_POSTGRES_PASSWORD}
+    depends_on:
+      postgres-autenticacion:
+        condition: service_healthy
+    ports:
+      - "${ATENTICACION_SERVER_PORT}:${ATENTICACION_SERVER_PORT}"
+    networks: [crediya_net]
+
+  # ===================== SOLICITUDES =====================
+  postgres-solicitudes:
+    image: postgres:17
+    ports:
+      - "${SOLICITUDES_POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_DB:            ${SOLICITUDES_POSTGRES_DB}
+      POSTGRES_USER:          ${SOLICITUDES_POSTGRES_USER}
+      POSTGRES_PASSWORD:      ${SOLICITUDES_POSTGRES_PASSWORD}
+    volumes:
+      - pg_data_solicitudes:/var/lib/postgresql/data
+      - ./Solicitudes/deployment/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [crediya_net]
+
+  app-solicitudes:
+    image: crediya/solicitudes:1.0.0
+    build:
+      context: ./Solicitudes
+      dockerfile: deployment/Dockerfile
+    env_file:
+      - ./Solicitudes/deployment/.env
+    environment:
+      # Server
+      SERVER_PORT:            ${SOLICITUDES_SERVER_PORT}
+
+      # CORS / JWT
+      CORS_ALLOWED_ORIGINS:   ${CORS_ALLOWED_ORIGINS}
+      JWT_SECRET:             ${JWT_SECRET}
+      JWT_SECRET_IS_BASE64:   ${JWT_SECRET_IS_BASE64}
+
+      # Rutas
+      ROUTE_SOLICITUD:        ${ROUTE_SOLICITUD}
+
+      # Endpoint interno hacia Autenticación
+      WEBCLIENT_MICRO_AUTENTICACION: "http://app-autenticacion:${ATENTICACION_SERVER_PORT}${ROUTE_USUARIO}"
+
+      # R2DBC
+      SPRING_R2DBC_URL: r2dbc:postgresql://${SOLICITUDES_POSTGRES_HOST}:${SOLICITUDES_POSTGRES_PORT}/${SOLICITUDES_POSTGRES_DB}
+      SPRING_R2DBC_USERNAME:  ${SOLICITUDES_POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD:  ${SOLICITUDES_POSTGRES_PASSWORD}
+    depends_on:
+      postgres-solicitudes:
+        condition: service_healthy
+    ports:
+      - "${SOLICITUDES_SERVER_PORT}:${SOLICITUDES_SERVER_PORT}"
+    networks: [crediya_net]
