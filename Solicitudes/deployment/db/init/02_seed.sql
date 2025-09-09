@@ -1,3 +1,3 @@
-INSERT INTO public.estado (estado_id, nombre, descripcion) VALUES(1, 'Pendiente de revisión', 'Su solicitud esta pendiente de ser revisada por el sistema.') ON CONFLICT DO NOTHING;
+INSERT INTO public.estado (nombre, descripcion) VALUES('Pendiente de revisión', 'Su solicitud esta pendiente de ser revisada por el sistema.') ON CONFLICT DO NOTHING;
 
-INSERT INTO public.tipo_prestamo (tipo_prestamo_id, nombre, monto_minimo, monto_maximo, tasa_interes, validacion_automatica) VALUES(1, 'Crédito libre inversión', 5000000.00, 20000000.00, 0.5000, false) ON CONFLICT DO NOTHING;
+INSERT INTO public.tipo_prestamo (nombre, monto_minimo, monto_maximo, tasa_interes, validacion_automatica) VALUES('Crédito libre inversión', 5000000.00, 20000000.00, 0.5000, false) ON CONFLICT DO NOTHING;
