@@ -47,7 +47,7 @@ Este módulo es el más externo de la arquitectura, es el encargado de ensamblar
 **Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
 
 ## Swagger
-http://localhost:8080/webjars/swagger-ui/index.html
+http://localhost:8081/webjars/swagger-ui/index.html
 
 
 # DDL
@@ -86,16 +86,9 @@ CREATE TABLE solicitud (
   estado_id         BIGINT NOT NULL,
   tipo_prestamo_id  BIGINT NOT NULL,
   usuario_id        BIGINT NOT NULL,
-
   CONSTRAINT chk_solicitud_email_not_blank CHECK (length(btrim(correo_electronico)) > 0),
-
-  CONSTRAINT fk_solicitud_estado FOREIGN KEY (estado_id) REFERENCES estado(estado_id)
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT,
-
+  CONSTRAINT fk_solicitud_estado FOREIGN KEY (estado_id) REFERENCES estado(estado_id),
   CONSTRAINT fk_solicitud_tipo_prestamo FOREIGN KEY (tipo_prestamo_id) REFERENCES tipo_prestamo(tipo_prestamo_id)
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_solicitud_estado ON solicitud (estado_id);
@@ -109,3 +102,9 @@ docker network create bootcamp_network
 docker compose down
 
 docker compose up -d --build
+
+docker compose \
+-p credi_ya \
+-f ./deployment/docker-compose.yml \
+-f ./deployment/docker-compose.override.yml \
+up -d --build

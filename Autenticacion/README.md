@@ -76,14 +76,8 @@ CREATE TABLE usuario (
   contrasenia        TEXT NOT NULL CHECK (length(btrim(contrasenia)) > 0),
   salario_base       NUMERIC(19,2) NOT NULL,
   rol_id             BIGINT NOT NULL,
-  
-  CONSTRAINT chk_usuario_email_not_blank
-    CHECK (length(btrim(correo_electronico)) > 0),
-  
-  CONSTRAINT fk_usuario_rol
-    FOREIGN KEY (rol_id) REFERENCES rol (rol_id)
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT
+  CONSTRAINT chk_usuario_email_not_blank CHECK (length(btrim(correo_electronico)) > 0),
+  CONSTRAINT fk_usuario_rol FOREIGN KEY (rol_id) REFERENCES rol (rol_id)
 );
 
 CREATE INDEX idx_usuario_rol_id ON usuario (rol_id);
@@ -96,3 +90,9 @@ docker network create bootcamp_network
 docker compose down
 
 docker compose up -d --build
+
+docker compose \
+-p credi_ya \
+-f ./deployment/docker-compose.yml \
+-f ./deployment/docker-compose.override.yml \
+up -d --build

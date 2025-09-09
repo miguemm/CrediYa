@@ -5,19 +5,15 @@ services:
       - .env
     volumes:
       - pg_data_autenticacion:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      - ${INIT_SQL_AUTH:-${PWD}/Autenticacion/deployment/db/init}:/docker-entrypoint-initdb.d:ro
     networks:
       - bootcamp_network
 
-  app-service-autenticacion:
+  app-autenticacion:
     env_file:
       - .env
     build:
-      context: .
+      context: ..
       dockerfile: deployment/Dockerfile
     depends_on:
       - postgres-autenticacion

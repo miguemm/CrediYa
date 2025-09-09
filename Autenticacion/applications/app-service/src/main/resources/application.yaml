@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${ATENTICACION_SERVER_PORT:8080}
 
 spring:
   application:
@@ -25,12 +25,12 @@ routes:
 
 adapters:
   r2dbc:
-    host: ${POSTGRES_HOST:localhost}
-    port: ${POSTGRES_PORT:5432}
-    database: ${POSTGRES_DB:autenticacion}
-    schema: ${POSTGRES_SCHEMA:public}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:root}
+    host: ${ATENTICACION_POSTGRES_HOST:localhost}
+    port: ${ATENTICACION_POSTGRES_PORT:5432}
+    database: ${ATENTICACION_POSTGRES_DB:autenticacion}
+    schema: ${ATENTICACION_POSTGRES_SCHEMA:public}
+    username: ${ATENTICACION_POSTGRES_USER:postgres}
+    password: ${ATENTICACION_POSTGRES_PASSWORD:root}
 
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}

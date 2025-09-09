@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SOLICITUDES_SERVER_PORT:8081}
 spring:
   application:
     name: "Solicitudes"
@@ -7,7 +7,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,prometheus"
+        include: "health,prometheus,info,mappings"
   endpoint:
     health:
       probes:
@@ -21,12 +21,12 @@ routes:
 
 adapters:
   r2dbc:
-    host: ${POSTGRES_HOST:localhost}
-    port: ${POSTGRES_PORT:5432}
-    database: ${POSTGRES_DB:solicitudes}
-    schema: ${POSTGRES_SCHEMA:public}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:root}
+    host: ${SOLICITUDES_POSTGRES_HOST:localhost}
+    port: ${SOLICITUDES_POSTGRES_PORT:5432}
+    database: ${SOLICITUDES_POSTGRES_DB:solicitudes}
+    schema: ${SOLICITUDES_POSTGRES_SCHEMA:public}
+    username: ${SOLICITUDES_POSTGRES_USER:postgres}
+    password: ${SOLICITUDES_POSTGRES_PASSWORD:root}
 
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
@@ -34,3 +34,7 @@ jwt:
 
 webClient:
   microAutenticacion: ${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}
+
+logging:
+  level:
+    org.springframework.web.reactive.function.server: TRACE
