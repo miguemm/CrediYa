@@ -9,6 +9,8 @@ public interface SolicitudRepository {
 
     Mono<Solicitud> saveSolicitud(Solicitud solicitud);
 
+    Mono<Solicitud> findSolicitudById(Long solicitudId);
+
     Mono<PageModel<SolicitudDto>> findAll(
             String correo, Long tipoPrestamoId, Long estadoId, int page, int size
     );

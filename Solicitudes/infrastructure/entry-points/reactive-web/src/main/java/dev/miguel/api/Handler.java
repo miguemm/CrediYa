@@ -1,6 +1,7 @@
 package dev.miguel.api;
 
 import dev.miguel.api.DTO.CreateSolicitudDTO;
+import dev.miguel.api.DTO.UpdateSolicitudDTO;
 import dev.miguel.api.mapper.ParamMapper;
 import dev.miguel.api.mapper.SolicitudDtoMapper;
 import dev.miguel.model.solicitud.Solicitud;
@@ -37,22 +38,22 @@ public class Handler {
                 .switchIfEmpty(Mono.error(new UnauthorizedException("Body requerido")));
 
         return Mono.zip(authenticatedUser, solicitudDTO)
-                .flatMap(tuple -> {
-                    UserContext user = tuple.getT1();
-                    CreateSolicitudDTO dto = tuple.getT2();
+            .flatMap(tuple -> {
+                UserContext user = tuple.getT1();
+                CreateSolicitudDTO dto = tuple.getT2();
 
-                    log.info("User: {} | Dto: {}", user, dto);
+                log.info("User: {} | Dto: {}", user, dto);
 
-                    if (hasUnauthorizedRole(user, "cliente")) {
-                        return Mono.error(new ForbiddenException("Solo los clientes pueden crear solicitudes."));
-                    }
+                if (hasUnauthorizedRole(user, "cliente")) {
+                    return Mono.error(new ForbiddenException("Solo los clientes pueden crear solicitudes."));
+                }
 
-                    Solicitud solicitud = solicitudDtoMapper.toDomain(dto);
-                    solicitud.setUsuarioId(Long.valueOf(user.id()));
+                Solicitud solicitud = solicitudDtoMapper.toDomain(dto);
+                solicitud.setUsuarioId(Long.valueOf(user.id()));
 
-                    return solicitudUseCase.createSolicitud(solicitud, user);
-                })
-                .then(ServerResponse.created(URI.create("/api/v1/solicitud/")).build());
+                return solicitudUseCase.createSolicitud(solicitud, user);
+            })
+            .then(ServerResponse.created(URI.create("/api/v1/solicitud/")).build());
     }
 
     public Mono<ServerResponse> listAll(ServerRequest req) {
@@ -67,33 +68,46 @@ public class Handler {
         int size = req.queryParam("size").map(ParamMapper::toIntOrNull).orElse(10);
 
         return authenticatedUser
-                .flatMap(user -> {
-                    if (hasUnauthorizedRole(user, "asesor")) {
-                        return Mono.error(new ForbiddenException("Solo los asesores pueden listar solicitudes."));
-                    }
+            .flatMap(user -> {
+                if (hasUnauthorizedRole(user, "asesor")) {
+                    return Mono.error(new ForbiddenException("Solo los asesores pueden listar solicitudes."));
+                }
 
-                    return solicitudUseCase.findAll(
-                            correo,
-                            tipoPrestamoId,
-                            estadoId,
-                            page,
-                            size,
-                            user
-                    );
-                })
-                .flatMap(result -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(result)
+                return solicitudUseCase.findAll(
+                        correo,
+                        tipoPrestamoId,
+                        estadoId,
+                        page,
+                        size,
+                        user
                 );
+            })
+            .flatMap(result -> ServerResponse.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(result)
+            );
     }
 
     public Mono<ServerResponse> updateEstadoSolicitud(ServerRequest req) {
         log.info("--- Petición recibida en updateEstadoSolicitud ---");
 
-        Long id = Long.valueOf(req.pathVariable("id"));
+        Mono<UserContext> authenticatedUser = extractUserContext.toUserContext(req.principal());
 
-        return Mono.empty()
-                .then(ServerResponse.ok().build());
+        Mono<UpdateSolicitudDTO> body = req.bodyToMono(UpdateSolicitudDTO.class)
+                .switchIfEmpty(Mono.error(new UnauthorizedException("Body requerido")));
+
+        return Mono.zip(authenticatedUser, body)
+            .flatMap(tuple -> {
+                UserContext user = tuple.getT1();
+                UpdateSolicitudDTO dto = tuple.getT2();
+
+                if (hasUnauthorizedRole(user, "asesor")) {
+                    return Mono.error(new ForbiddenException("Solo los asesores pueden actualizar solicitudes."));
+                }
+
+                return solicitudUseCase.updateSolicitud(dto.solicitudId(), dto.estadoId());
+            })
+            .then(ServerResponse.ok().build());
     }
 
 

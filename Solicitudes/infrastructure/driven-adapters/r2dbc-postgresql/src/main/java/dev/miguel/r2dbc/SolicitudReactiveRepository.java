@@ -12,21 +12,21 @@ import reactor.core.publisher.Mono;
 public interface SolicitudReactiveRepository extends ReactiveCrudRepository<SolicitudEntity, Long>, ReactiveQueryByExampleExecutor<SolicitudEntity> {
 
     @Query("""
-        SELECT
-            s.usuario_id AS usuario_id,
-             s.solicitud_id AS solicitud_id,
+        SELECT            
+             s.solicitud_id AS solicitud_id,             
              s.monto,
              s.plazo,
              s.correo_electronico AS correo_electronico,
              tipo.nombre     AS tipo_prestamo,
-             estado.nombre   AS estado
+             estado.nombre   AS estado,
+             s.usuario_id AS usuario_id
            FROM solicitud s
            JOIN tipo_prestamo tipo ON tipo.tipo_prestamo_id = s.tipo_prestamo_id
            JOIN estado ON estado.estado_id = s.estado_id
            WHERE (:estadoId IS NULL OR s.estado_id = :estadoId)
              AND (:correo IS NULL OR s.correo_electronico = :correo)
              AND (:tipoPrestamoId IS NULL OR s.tipo_prestamo_id = :tipoPrestamoId)
-           ORDER BY s.solicitud_id DESC
+           ORDER BY s.solicitud_id ASC
            LIMIT :limit OFFSET :offset
     """)
     Flux<SolicitudDto> findAllProjected(

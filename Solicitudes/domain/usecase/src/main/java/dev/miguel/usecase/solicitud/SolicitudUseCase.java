@@ -32,57 +32,73 @@ public class SolicitudUseCase implements ISolicitudUseCase {
 
     @Override
     public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
-        return Mono.defer(() -> {
-            if (!emailsMatch(solicitud.getCorreoElectronico(), user.email())) {
-                return Mono.error(new ForbiddenException("No puedes crear solicitudes en nombre de otro usuario."));
-            }
 
-            return validator.validateCreateBody(solicitud)
-                    .then(Mono.zip(
-                            tipoPrestamoRepository.existsTipoPrestamoById(solicitud.getTipoPrestamoId()),
-                            estadoRepository.existsEstadoById(ESTADO_PENDIENTE_REVISION_ID)
-                    ))
-                    .flatMap(exists -> {
-                        boolean tipoOk = exists.getT1();
-                        boolean estadoOk = exists.getT2();
+        if (!emailsMatch(solicitud.getCorreoElectronico(), user.email())) {
+            return Mono.error(new ForbiddenException("No puedes crear solicitudes en nombre de otro usuario."));
+        }
 
-                        if (!tipoOk)   return Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE));
-                        if (!estadoOk) return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
+        return validator.validateCreateBody(solicitud)
+            .then(Mono.zip(
+                tipoPrestamoRepository.existsTipoPrestamoById(solicitud.getTipoPrestamoId()),
+                estadoRepository.existsEstadoById(ESTADO_PENDIENTE_REVISION_ID)
+            ))
+            .flatMap(exists -> {
+                boolean tipoOk = exists.getT1();
+                boolean estadoOk = exists.getT2();
 
-                        solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
-                        solicitud.setUsuarioId(Long.valueOf(user.id()));
-                        return solicitudRepository.saveSolicitud(solicitud).then();
-                    });
-        });
+                if (!tipoOk)   return Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE));
+                if (!estadoOk) return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
+
+                solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
+                solicitud.setUsuarioId(Long.valueOf(user.id()));
+                return solicitudRepository.saveSolicitud(solicitud).then();
+            });
+    }
+
+    @Override
+    public Mono<Void> updateSolicitud(Long solicitudId, Long estadoId) {
+        return solicitudRepository.findSolicitudById(solicitudId)
+                .switchIfEmpty(Mono.error(new BusinessException("La solicitud no existe.")))
+                .zipWith(estadoRepository.existsEstadoById(estadoId))
+                .flatMap(tuple -> {
+                    Solicitud solicitud = tuple.getT1();
+                    boolean estado = tuple.getT2();
+
+                    if (!estado) {
+                        return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
+                    }
+
+                    solicitud.setEstadoId(estadoId);
+                    return solicitudRepository.saveSolicitud(solicitud).then();
+                })
+                .then();
     }
 
     @Override
     public Mono<PageModel<SolicitudDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
-        return Mono.defer(() -> {
-            return validator.validateFindAll(correoElectronico, tipoPrestamoId, estadoId, page, size)
-                    .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size))
-                    .flatMap(pageable -> {
-                        if (pageable.getContent().isEmpty()) {
-                            return Mono.just(pageable);
-                        }
+        return validator.validateFindAll(correoElectronico, tipoPrestamoId, estadoId, page, size)
+            .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size))
+            .flatMap(pageable -> {
+                if (pageable.getContent().isEmpty()) {
+                    return Mono.just(pageable);
+                }
 
-                        return Flux.fromIterable(pageable.getContent())
-                                .flatMap(dto ->
-                                                getUserDetailsById.getUserDetailsById(dto)
-                                                        .map(userDetails -> {
-                                                            dto.setUser(userDetails);
-                                                            return dto;
-                                                        })
-                                                        .onErrorResume(e -> Mono.just(dto)), 10
+                return Flux.fromIterable(pageable.getContent())
+                    .flatMapSequential(dto ->
+                        getUserDetailsById.getUserDetailsById(dto)
+                                .map(userDetails -> {
+                                    dto.setUser(userDetails);
+                                    return dto;
+                                })
+                                .onErrorResume(e -> Mono.just(dto)), 10
 
-                                )
-                                .collectList()
-                                .map(list -> {
-                                    pageable.setContent(list);
-                                    return pageable;
-                                });
+                    )
+                    .collectList()
+                    .map(list -> {
+                        pageable.setContent(list);
+                        return pageable;
                     });
-        });
+            });
     }
 
     private boolean emailsMatch(String a, String b) {

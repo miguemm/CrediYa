@@ -10,6 +10,8 @@ public interface ISolicitudUseCase {
 
     Mono<Void> createSolicitud(Solicitud solicitud, UserContext user);
 
+    Mono<Void> updateSolicitud(Long solicitudId, Long estadoId);
+
     Mono<PageModel<SolicitudDto>> findAll(
             String correoElectronico,
             Long tipoPrestamoId,

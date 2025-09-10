@@ -78,19 +78,6 @@ public class SolicitudUseCaseTest {
 
         }
 
-        @Test
-        @DisplayName("Forbidden: si el usuario no tiene rol 'cliente'")
-        void createSolicitud_forbidden_por_rol() {
-            Solicitud input = validSolicitud();
-            UserContext user = userContext("7", input.getCorreoElectronico(), List.of("admin"));
-
-            StepVerifier.create(useCase.createSolicitud(input, user))
-                    .expectErrorSatisfies(err -> {
-                        assertTrue(err instanceof ForbiddenException);
-                        assertTrue(err.getMessage().contains("Solo los clientes pueden crear solicitudes."));
-                    })
-                    .verify();
-        }
 
         @Test
         @DisplayName("Forbidden: si el email de la solicitud no coincide con el del usuario autenticado")
@@ -166,20 +153,7 @@ public class SolicitudUseCaseTest {
     @Nested
     @DisplayName("findAll")
     class findAllTest {
-        
-        @Test
-        @DisplayName("Forbidden: solo asesores pueden listar solicitudes")
-        void findAll_forbidden_por_rol() {
-            var user = userContext("5", "asesorX@test.com", List.of("cliente")); // no es asesor
 
-            StepVerifier.create(useCase.findAll(null, null, null, 0, 10, user))
-                    .expectErrorSatisfies(err -> {
-                        assertTrue(err instanceof ForbiddenException);
-                        assertTrue(err.getMessage().contains("Solo los asesores pueden listar solicitudes."));
-                    })
-                    .verify();
-            
-        }
 
         @Test
         @DisplayName("Página vacía: devuelve la página tal cual, sin llamar a enriquecimiento")
@@ -269,7 +243,6 @@ public class SolicitudUseCaseTest {
             d.setSolicitudId(solicitudId);
             d.setUsuarioId(usuarioId);
             d.setCorreoElectronico(correo);
-            // d.setUser(null) por defecto
             return d;
         }
 
@@ -280,6 +253,65 @@ public class SolicitudUseCaseTest {
             p.setTotalPages(total);
             p.setContent(new ArrayList<>(content));
             return p;
+        }
+    }
+
+    @Nested
+    @DisplayName("updateSolicitudTest")
+    class updateSolicitudTest {
+        @Test
+        @DisplayName("Ok")
+        void updateSolicitud_ok() {
+            Long solicitudId = 1L;
+            Long estadoId = 2L;
+
+            Solicitud solicitud = new Solicitud();
+            solicitud.setId(solicitudId);
+            solicitud.setEstadoId(99L);
+
+//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
+            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.just(solicitud));
+            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(true));
+            when(solicitudRepository.saveSolicitud(any(Solicitud.class))).thenReturn(Mono.just(solicitud));
+
+            StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
+                    .verifyComplete();
+
+        }
+
+        @Test
+        @DisplayName("Solicitud no existe -> BusinessException")
+        void updateSolicitud_notFoundSolicitud() {
+            Long solicitudId = 1L;
+            Long estadoId = 2L;
+
+//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
+            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.empty());
+            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(false));
+
+            StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
+                    .expectError(BusinessException.class)
+                    .verify();
+
+        }
+
+        @Test
+        @DisplayName("Estado no existe -> BusinessException")
+        void updateSolicitud_estadoNoExiste() {
+            Long solicitudId = 1L;
+            Long estadoId = 2L;
+
+            Solicitud solicitud = new Solicitud();
+            solicitud.setId(solicitudId);
+
+//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
+            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.just(solicitud));
+            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(false));
+
+            StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
+                    .expectError(BusinessException.class)
+                    .verify();
+
         }
     }
 

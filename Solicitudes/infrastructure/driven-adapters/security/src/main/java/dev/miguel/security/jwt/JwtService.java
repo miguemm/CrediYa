@@ -19,7 +19,7 @@ public class JwtService implements IExtractUserContext {
 
         return safe
                 .switchIfEmpty(Mono.error(new UnauthorizedException("No autenticado")))
-                .flatMap(this::validateUserContext); // reutiliza la versión que recibe Object
+                .flatMap(this::validateUserContext);
     }
 
     private Mono<UserContext> validateUserContext(Object p) {

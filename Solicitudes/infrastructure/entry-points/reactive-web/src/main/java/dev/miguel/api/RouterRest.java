@@ -275,7 +275,7 @@ public class RouterRest {
         return route()
                 .POST(solicitudPath.getSolicitud(), handler::createSolicitud)
                 .GET(solicitudPath.getSolicitud(), handler::listAll)
-                .PUT(solicitudPath.getSolicitud() + "/{id}", handler::updateEstadoSolicitud)
+                .PUT(solicitudPath.getSolicitud(), handler::updateEstadoSolicitud)
                 .build();
     }
 }

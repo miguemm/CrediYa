@@ -32,12 +32,21 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
 
     @Override
     public Mono<Solicitud> saveSolicitud(Solicitud solicitud) {
-        log.info("Guardando usuario: {}", solicitud);
+        log.info("Guardando solicitud: {}", solicitud);
 
         return super.save(solicitud)
                 .doOnNext(saved -> log.info("Solicitud creada con id = {}", saved.getId()))
                 .doOnError(error -> log.error("Error al guardar solicitud: {}", solicitud, error))
                 .as(tx::transactional);
+    }
+
+    @Override
+    public Mono<Solicitud> findSolicitudById(Long solicitudId) {
+        log.info("Find solicitud by id: {}", solicitudId);
+
+        return super.findById(solicitudId)
+                .doOnNext(saved -> log.info("Encontrada solicitud con id = {}", saved.getId()))
+                .doOnError(error -> log.error("Error al obtener solicitud: {}", solicitudId, error));
     }
 
     @Override
