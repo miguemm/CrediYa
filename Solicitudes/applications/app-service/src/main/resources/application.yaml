@@ -1,5 +1,5 @@
 server:
-  port: ${SOLICITUDES_SERVER_PORT:8081}
+  port: "${SOLICITUDES_SERVER_PORT:8081}"
 spring:
   application:
     name: "Solicitudes"
@@ -13,24 +13,20 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
-
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}"
 routes:
   paths:
-    solicitud: ${ROUTE_SOLICITUD:/api/v1/solicitud}
-
+    solicitud: "${ROUTE_SOLICITUD:/api/v1/solicitud}"
 adapters:
   r2dbc:
-    host: ${SOLICITUDES_POSTGRES_HOST:localhost}
-    port: ${SOLICITUDES_POSTGRES_PORT:5432}
-    database: ${SOLICITUDES_POSTGRES_DB:solicitudes}
-    schema: ${SOLICITUDES_POSTGRES_SCHEMA:public}
-    username: ${SOLICITUDES_POSTGRES_USER:postgres}
-    password: ${SOLICITUDES_POSTGRES_PASSWORD:root}
-
+    host: "${SOLICITUDES_POSTGRES_HOST:localhost}"
+    port: "${SOLICITUDES_POSTGRES_PORT:5432}"
+    database: "${SOLICITUDES_POSTGRES_DB:solicitudes}"
+    schema: "${SOLICITUDES_POSTGRES_SCHEMA:public}"
+    username: "${SOLICITUDES_POSTGRES_USER:postgres}"
+    password: "${SOLICITUDES_POSTGRES_PASSWORD:root}"
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  secret-is-base64: ${JWT_SECRET_IS_BASE64:true}
-
+  secret: "${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}"
+  secret-is-base64: "${JWT_SECRET_IS_BASE64:true}"
 webClient:
-  microAutenticacion: ${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}
+  microAutenticacion: "${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}"

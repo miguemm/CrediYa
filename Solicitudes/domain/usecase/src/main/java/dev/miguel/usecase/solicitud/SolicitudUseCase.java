@@ -8,6 +8,8 @@ import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.model.utils.page.PageModel;
+import dev.miguel.model.utils.sqs.SQSMessage;
+import dev.miguel.model.utils.sqs.gateway.ISQSService;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
@@ -27,6 +29,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private final TipoPrestamoRepository tipoPrestamoRepository;
 
     private final IGetUserDetailsById getUserDetailsById;
+    private final ISQSService sqsService;
 
     private final ValidatorSolicitudUseCase validator;
 
@@ -34,7 +37,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
 
         if (!emailsMatch(solicitud.getCorreoElectronico(), user.email())) {
-            return Mono.error(new ForbiddenException("No puedes crear solicitudes en nombre de otro usuario."));
+            return Mono.error(new ForbiddenException(ExceptionMessages.SOLICITUD_A_OTRO_USUARIO));
         }
 
         return validator.validateCreateBody(solicitud)
@@ -58,20 +61,26 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     @Override
     public Mono<Void> updateSolicitud(Long solicitudId, Long estadoId) {
         return solicitudRepository.findSolicitudById(solicitudId)
-                .switchIfEmpty(Mono.error(new BusinessException("La solicitud no existe.")))
-                .zipWith(estadoRepository.existsEstadoById(estadoId))
-                .flatMap(tuple -> {
-                    Solicitud solicitud = tuple.getT1();
-                    boolean estado = tuple.getT2();
+            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_NO_EXISTE)))
+            .flatMap(solicitud ->
+                estadoRepository.findEstadoById(estadoId)
+                    .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE)))
+                    .flatMap(estado -> {
 
-                    if (!estado) {
-                        return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
-                    }
-
-                    solicitud.setEstadoId(estadoId);
-                    return solicitudRepository.saveSolicitud(solicitud).then();
-                })
-                .then();
+                        solicitud.setEstadoId(estado.getId());
+                        return solicitudRepository.saveSolicitud(solicitud)
+                            .flatMap(saved ->
+                                sqsService.send(
+                                    SQSMessage.builder()
+                                        .solicitudId(saved.getId())
+                                        .correoElectronico(saved.getCorreoElectronico())
+                                        .estado(estado.getNombre())
+                                        .build()
+                                )
+                            );
+                    })
+            )
+            .then();
     }
 
     @Override

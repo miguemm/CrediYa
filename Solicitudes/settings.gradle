@@ -28,3 +28,7 @@ include ':security'
 project(':security').projectDir = file('./infrastructure/driven-adapters/security')
 include ':authentication-web-client'
 project(':authentication-web-client').projectDir = file('./infrastructure/driven-adapters/authentication-web-client')
+include ':metrics'
+project(':metrics').projectDir = file('./infrastructure/helpers/metrics')
+include ':sqs-sender'
+project(':sqs-sender').projectDir = file('./infrastructure/driven-adapters/sqs-sender')

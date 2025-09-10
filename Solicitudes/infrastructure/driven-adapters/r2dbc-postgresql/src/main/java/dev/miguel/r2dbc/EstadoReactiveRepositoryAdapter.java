@@ -38,4 +38,13 @@ public class EstadoReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .doOnError(e -> log.error("Error verificando estado id={}", id, e));
     }
 
+    @Override
+    public Mono<Estado> findEstadoById(Long id) {
+        log.info("Find estado by id: {}", id);
+
+        return super.findById(id)
+                .doOnNext(saved -> log.info("Encontrad estado con id = {}", saved.getId()))
+                .doOnError(error -> log.error("Error al obtener estado: {}", id, error));
+    }
+
 }
