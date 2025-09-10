@@ -274,6 +274,8 @@ public class RouterRest {
     @Bean public RouterFunction<ServerResponse> routerFunction() {
         return route()
                 .POST(solicitudPath.getSolicitud(), handler::createSolicitud)
-                .GET(solicitudPath.getSolicitud(), handler::listAll) .build();
+                .GET(solicitudPath.getSolicitud(), handler::listAll)
+                .PUT(solicitudPath.getSolicitud() + "/{id}", handler::updateEstadoSolicitud)
+                .build();
     }
 }

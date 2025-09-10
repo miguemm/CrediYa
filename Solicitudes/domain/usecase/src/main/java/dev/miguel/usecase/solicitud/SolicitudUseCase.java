@@ -33,12 +33,6 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     @Override
     public Mono<Void> createSolicitud(Solicitud solicitud, UserContext user) {
         return Mono.defer(() -> {
-            // Debe tener rol "cliente"
-            if (!hasSpecificRole(user, "cliente")) {
-                return Mono.error(new ForbiddenException("Solo los clientes pueden crear solicitudes."));
-            }
-
-            // El email de la solicitud debe coincidir con el del usuario autenticado
             if (!emailsMatch(solicitud.getCorreoElectronico(), user.email())) {
                 return Mono.error(new ForbiddenException("No puedes crear solicitudes en nombre de otro usuario."));
             }
@@ -65,10 +59,6 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     @Override
     public Mono<PageModel<SolicitudDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
         return Mono.defer(() -> {
-            if (!hasSpecificRole(user, "asesor")) {
-                return Mono.error(new ForbiddenException("Solo los asesores pueden listar solicitudes."));
-            }
-
             return validator.validateFindAll(correoElectronico, tipoPrestamoId, estadoId, page, size)
                     .then(solicitudRepository.findAll(correoElectronico, tipoPrestamoId, estadoId, page, size))
                     .flatMap(pageable -> {
@@ -95,13 +85,8 @@ public class SolicitudUseCase implements ISolicitudUseCase {
         });
     }
 
-    private boolean hasSpecificRole(UserContext user, String authorizedRol) {
-        return user != null
-                && user.roles() != null
-                && user.roles().stream().anyMatch(r -> authorizedRol.equalsIgnoreCase(r.trim()));
-    }
-
     private boolean emailsMatch(String a, String b) {
         return a != null && b != null && a.trim().equalsIgnoreCase(b.trim());
     }
+
 }
