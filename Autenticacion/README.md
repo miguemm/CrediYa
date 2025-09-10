@@ -47,7 +47,7 @@ Este módulo es el más externo de la arquitectura, es el encargado de ensamblar
 **Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
 
 ## Swagger
-http://localhost:8081/webjars/swagger-ui/index.html
+http://localhost:8080/webjars/swagger-ui/index.html
 
 
 # DDL
@@ -82,17 +82,3 @@ CREATE TABLE usuario (
 
 CREATE INDEX idx_usuario_rol_id ON usuario (rol_id);
 ```
-
-docker network ls
-
-docker network create bootcamp_network
-
-docker compose down
-
-docker compose up -d --build
-
-docker compose \
--p credi_ya \
--f ./deployment/docker-compose.yml \
--f ./deployment/docker-compose.override.yml \
-up -d --build

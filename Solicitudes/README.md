@@ -94,17 +94,3 @@ CREATE TABLE solicitud (
 CREATE INDEX idx_solicitud_estado ON solicitud (estado_id);
 CREATE INDEX idx_solicitud_tipo_prestamo ON solicitud (tipo_prestamo_id);
 ```
-
-docker network ls
-
-docker network create bootcamp_network
-
-docker compose down
-
-docker compose up -d --build
-
-docker compose \
--p credi_ya \
--f ./deployment/docker-compose.yml \
--f ./deployment/docker-compose.override.yml \
-up -d --build

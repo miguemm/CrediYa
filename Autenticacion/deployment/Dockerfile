@@ -1,4 +1,4 @@
-FROM gradle:jdk21-corretto AS TEMP_BUILD_IMAGE
+FROM gradle:jdk21-corretto AS build
 ENV INSTALL_DIR=/opt/app
 WORKDIR $INSTALL_DIR
 COPY . $INSTALL_DIR
@@ -16,7 +16,7 @@ ARG USER_GID=$USER_UID
 
 WORKDIR $INSTALL_DIR
 
-COPY --from=TEMP_BUILD_IMAGE $INSTALL_DIR/applications/app-service/build/libs/*.jar $INSTALL_DIR/app.jar
+COPY --from=build $INSTALL_DIR/applications/app-service/build/libs/*.jar $INSTALL_DIR/app.jar
 
 RUN groupadd --gid "$USER_GID" "$USERNAME" \
     && useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" \
