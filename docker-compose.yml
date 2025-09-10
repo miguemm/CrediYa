@@ -103,6 +103,13 @@ services:
       SPRING_R2DBC_URL: r2dbc:postgresql://${SOLICITUDES_POSTGRES_HOST}:5432/${SOLICITUDES_POSTGRES_DB}
       SPRING_R2DBC_USERNAME:  ${SOLICITUDES_POSTGRES_USER}
       SPRING_R2DBC_PASSWORD:  ${SOLICITUDES_POSTGRES_PASSWORD}
+
+      #AWS
+      SQS_REGION:             ${SQS_REGION}
+      SQS_QUEUE_URL:          ${SQS_QUEUE_URL}
+      SQS_ACCESS_KEY:         ${SQS_ACCESS_KEY}
+      SQS_SECRET_KEY:         ${SQS_SECRET_KEY}
+
     depends_on:
       postgres-solicitudes:
         condition: service_healthy
