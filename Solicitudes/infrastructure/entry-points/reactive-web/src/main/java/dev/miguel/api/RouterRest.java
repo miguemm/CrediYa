@@ -1,6 +1,7 @@
 package dev.miguel.api;
 
 import dev.miguel.api.DTO.CreateSolicitudDTO;
+import dev.miguel.api.DTO.UpdateSolicitudDTO;
 import dev.miguel.api.config.SolicitudPath;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -135,9 +136,9 @@ public class RouterRest {
                             operationId = "listSolicitudes",
                             summary = "Listar solicitudes (paginado y filtrado)",
                             description = """
-                    Devuelve una página de solicitudes. Requiere autenticación y rol **asesor**.
-                    Filtros opcionales: correo, tipo de préstamo, estado. Los resultados incluyen info adicional del usuario `userDetails` por cada item.
-                    """,
+                                    Devuelve una página de solicitudes. Requiere autenticación y rol **asesor**.
+                                    Filtros opcionales: correo, tipo de préstamo, estado. Los resultados incluyen info adicional del usuario `userDetails` por cada item.
+                                """,
                             tags = {"Solicitud - listar"},
                             security = { @SecurityRequirement(name = "bearerAuth") },
                             parameters = {
@@ -267,6 +268,84 @@ public class RouterRest {
                                                     )
                                             )
                                     )
+                            }
+                    )
+            ),
+
+            // =========================
+            // PUT /api/v1/solicitud
+            // =========================
+            @RouterOperation(
+                    path = "/api/v1/solicitud",
+                    produces = { MediaType.APPLICATION_JSON_VALUE },
+                    method = RequestMethod.PUT,
+                    beanClass = Handler.class,
+                    beanMethod = "updateEstadoSolicitud",
+                    operation = @Operation(
+                            operationId = "updateEstadoSolicitud",
+                            summary = "Actualizar estado de una solicitud",
+                            description = """
+                                    Actualiza el estado de una solicitud existente.
+                                    Requiere autenticación y rol **asesor**.
+                                
+                                    Reglas:
+                                    - Debe existir la solicitud y el estado destino.
+                                    - La transición de estado debe ser válida según las reglas de negocio.
+                                """,
+                            tags = {"Solicitud - actualizar estado"},
+                            security = { @SecurityRequirement(name = "bearerAuth") },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Identificador de la solicitud y nuevo estado.",
+                                    content = @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = UpdateSolicitudDTO.class),
+                                            examples = {
+                                                    @ExampleObject(
+                                                            name = "Actualizar a 'En revisión'",
+                                                            value = """
+                                                                    {
+                                                                      "solicitudId": 101,
+                                                                      "estadoId": 2
+                                                                    }
+                                                                """
+                                                    )
+                                            }
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Estado actualizado correctamente.",
+                                            content = @Content
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "401",
+                                            description = "No autenticado o token inválido.",
+                                            content = @Content(mediaType = "application/json",
+                                                    examples = @ExampleObject(value = """
+                                                            { "message": "No autenticado" }
+                                                        """)
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "403",
+                                            description = "No autorizado (solo asesores pueden actualizar estados).",
+                                            content = @Content(mediaType = "application/json",
+                                                    examples = @ExampleObject(value = """
+                                                        { "message": "Solo los asesores pueden actualizar el estado de una solicitud." }
+                                                    """)
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "404",
+                                            description = "Solicitud o estado no encontrado.",
+                                            content = @Content(mediaType = "application/json",
+                                                    examples = @ExampleObject(value = """
+                                            { "message": "Solicitud no encontrada" }
+                                        """)
+                                            )
+                                    ),
                             }
                     )
             )

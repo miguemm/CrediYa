@@ -39,7 +39,7 @@ public class UserHandler {
                 .doOnError(error -> log.error("Error en createUser", error));
     }
 
-    @PreAuthorize("hasAnyRole('asesor')")
+    @PreAuthorize("hasAnyRole('asesor', 'cliente')")
     public Mono<ServerResponse> getUserById(ServerRequest req) {
         Long id = Long.valueOf(req.pathVariable("id"));
         return userUseCase.getUserById(id)

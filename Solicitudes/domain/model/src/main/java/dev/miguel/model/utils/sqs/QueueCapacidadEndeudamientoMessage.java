@@ -2,14 +2,16 @@ package dev.miguel.model.utils.sqs;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @ToString
-public class SQSMessage {
+public class QueueCapacidadEndeudamientoMessage {
     Long solicitudId;
     String correoElectronico;
-    String estado;
+    BigDecimal salarioBase;
 }

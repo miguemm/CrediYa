@@ -1,8 +1,7 @@
 package dev.miguel.sqs.sender;
 
 import com.google.gson.Gson;
-import dev.miguel.model.utils.sqs.SQSMessage;
-import dev.miguel.model.utils.sqs.gateway.ISQSService;
+import dev.miguel.model.utils.sqs.gateway.IQueueService;
 import dev.miguel.sqs.sender.config.SQSSenderProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -15,14 +14,14 @@ import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class SQSSender implements ISQSService {
+public class SQSSender implements IQueueService {
 
     private final SQSSenderProperties properties;
     private final SqsAsyncClient client;
     private final Gson gson = new Gson();
 
     @Override
-    public Mono<String> send(String queueAlias, SQSMessage message) {
+    public <T> Mono<String> send(String queueAlias, T message) {
         String queueUrl = properties.queues().get(queueAlias);
         if (queueUrl == null) {
             return Mono.error(new IllegalArgumentException("Alias de cola no configurado: " + queueAlias));

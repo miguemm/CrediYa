@@ -1,7 +1,9 @@
 package dev.miguel.usecase.solicitud;
 
+import dev.miguel.model.estado.Estado;
 import dev.miguel.model.estado.gateways.EstadoRepository;
 import dev.miguel.model.solicitud.proyections.SolicitudDto;
+import dev.miguel.model.tipoprestamo.TipoPrestamo;
 import dev.miguel.model.utils.exceptions.BusinessException;
 import dev.miguel.model.utils.exceptions.ForbiddenException;
 import dev.miguel.model.solicitud.Solicitud;
@@ -9,8 +11,9 @@ import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.model.utils.page.PageModel;
 import dev.miguel.model.utils.sqs.QueueAlias;
-import dev.miguel.model.utils.sqs.SQSMessage;
-import dev.miguel.model.utils.sqs.gateway.ISQSService;
+import dev.miguel.model.utils.sqs.QueueCapacidadEndeudamientoMessage;
+import dev.miguel.model.utils.sqs.QueueUpdateSolicitudMessage;
+import dev.miguel.model.utils.sqs.gateway.IQueueService;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
@@ -30,7 +33,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private final TipoPrestamoRepository tipoPrestamoRepository;
 
     private final IGetUserDetailsById getUserDetailsById;
-    private final ISQSService sqsService;
+    private final IQueueService queueService;
 
     private final ValidatorSolicitudUseCase validator;
 
@@ -42,20 +45,42 @@ public class SolicitudUseCase implements ISolicitudUseCase {
         }
 
         return validator.validateCreateBody(solicitud)
-            .then(Mono.zip(
-                tipoPrestamoRepository.existsTipoPrestamoById(solicitud.getTipoPrestamoId()),
-                estadoRepository.existsEstadoById(ESTADO_PENDIENTE_REVISION_ID)
-            ))
+            .then(
+                Mono.zip(
+                    tipoPrestamoRepository.findTipoPrestamoById(solicitud.getTipoPrestamoId())
+                            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE))),
+                    estadoRepository.findEstadoById(ESTADO_PENDIENTE_REVISION_ID)
+                            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE)))
+                )
+            )
             .flatMap(exists -> {
-                boolean tipoOk = exists.getT1();
-                boolean estadoOk = exists.getT2();
 
-                if (!tipoOk)   return Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE));
-                if (!estadoOk) return Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE));
+                TipoPrestamo tipoPrestamo = exists.getT1();
+                Estado estado = exists.getT2();
 
-                solicitud.setEstadoId(ESTADO_PENDIENTE_REVISION_ID);
+                solicitud.setEstadoId(estado.getId());
                 solicitud.setUsuarioId(Long.valueOf(user.id()));
-                return solicitudRepository.saveSolicitud(solicitud).then();
+
+                return solicitudRepository.saveSolicitud(solicitud)
+                    .flatMap(saved -> {
+
+                        if (!tipoPrestamo.isValidacionAutomatica()) {
+                            return Mono.empty();
+                        }
+
+                        return getUserDetailsById.getUserDetailsById(saved.getUsuarioId())
+                            .flatMap(userDetails ->
+                                queueService.send(
+                                    QueueAlias.CAPACIDAD_ENDEUDAMIENTO.alias(),
+                                    QueueCapacidadEndeudamientoMessage.builder()
+                                        .solicitudId(saved.getId())
+                                        .correoElectronico(saved.getCorreoElectronico())
+                                        .salarioBase(userDetails.salarioBase())
+                                        .build()
+                                )
+                            )
+                            .then();
+                    });
             });
     }
 
@@ -71,9 +96,9 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                         solicitud.setEstadoId(estado.getId());
                         return solicitudRepository.saveSolicitud(solicitud)
                             .flatMap(saved ->
-                                sqsService.send(
+                                queueService.send(
                                     QueueAlias.SOLICITUD_ACTUALIZADA.alias(),
-                                    SQSMessage.builder()
+                                    QueueUpdateSolicitudMessage.builder()
                                         .solicitudId(saved.getId())
                                         .correoElectronico(saved.getCorreoElectronico())
                                         .estado(estado.getNombre())
@@ -96,7 +121,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
 
                 return Flux.fromIterable(pageable.getContent())
                     .flatMapSequential(dto ->
-                        getUserDetailsById.getUserDetailsById(dto)
+                        getUserDetailsById.getUserDetailsById(dto.getUsuarioId())
                                 .map(userDetails -> {
                                     dto.setUser(userDetails);
                                     return dto;

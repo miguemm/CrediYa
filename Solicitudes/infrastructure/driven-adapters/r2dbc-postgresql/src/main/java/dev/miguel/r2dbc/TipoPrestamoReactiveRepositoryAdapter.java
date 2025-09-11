@@ -38,5 +38,13 @@ public class TipoPrestamoReactiveRepositoryAdapter extends ReactiveAdapterOperat
                 .doOnError(e -> log.error("Error verificando tipo prestamo id={}", id, e));
     }
 
+    @Override
+    public Mono<TipoPrestamo> findTipoPrestamoById(Long id) {
+        log.info("Find tipo prestamos by id: {}", id);
+
+        return super.findById(id)
+                .doOnNext(saved -> log.info("Encontrado tipo prestamos con id = {}", saved.getId()))
+                .doOnError(error -> log.error("Error al obtener el tipo prestamo: {}", id, error));
+    }
 
 }

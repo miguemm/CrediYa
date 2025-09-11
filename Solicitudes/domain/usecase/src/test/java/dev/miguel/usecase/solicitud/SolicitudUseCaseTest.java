@@ -10,8 +10,8 @@ import dev.miguel.model.utils.exceptions.BusinessException;
 import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import dev.miguel.model.utils.exceptions.ForbiddenException;
 import dev.miguel.model.utils.page.PageModel;
-import dev.miguel.model.utils.sqs.SQSMessage;
-import dev.miguel.model.utils.sqs.gateway.ISQSService;
+import dev.miguel.model.utils.sqs.QueueUpdateSolicitudMessage;
+import dev.miguel.model.utils.sqs.gateway.IQueueService;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
@@ -30,7 +30,6 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,7 +46,7 @@ public class SolicitudUseCaseTest {
     @Mock private TipoPrestamoRepository tipoPrestamoRepository;
     @Mock private EstadoRepository estadoRepository;
     @Mock private ValidatorSolicitudUseCase validator;
-    @Mock private ISQSService sqsService;
+    @Mock private IQueueService sqsService;
     
     @Mock
     private IGetUserDetailsById getUserDetailsById;
@@ -285,7 +284,7 @@ public class SolicitudUseCaseTest {
 
             when(solicitudRepository.saveSolicitud(any(Solicitud.class)))
                     .thenAnswer(inv -> Mono.just(inv.getArgument(0)));
-            when(sqsService.send(any(SQSMessage.class)))
+            when(sqsService.send(any(QueueUpdateSolicitudMessage.class)))
                     .thenReturn(Mono.just("msg-123"));
 
             StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))

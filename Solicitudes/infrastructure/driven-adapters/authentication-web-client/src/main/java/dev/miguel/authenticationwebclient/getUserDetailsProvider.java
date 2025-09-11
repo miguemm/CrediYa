@@ -25,14 +25,12 @@ public class getUserDetailsProvider implements IGetUserDetailsById {
     private final WebClient userWebClient;
 
     @Override
-    public Mono<UserDetails> getUserDetailsById(SolicitudDto solicitud) {
+    public Mono<UserDetails> getUserDetailsById(Long userId) {
         return Mono.defer(() -> {
-            Long userId = solicitud.getUsuarioId();
-            log.info("[getUserDetailsById] inicio solicitudId={} usuarioId={}",
-                    solicitud.getSolicitudId(), userId);
+            log.info("[getUserDetailsById] inicio usuarioId={}", userId);
 
             if (userId == null) {
-                log.warn("[getUserDetailsById] usuarioId es null para solicitudId={}", solicitud.getSolicitudId());
+                log.warn("[getUserDetailsById] usuarioId es");
                 return Mono.error(new BusinessException("usuarioId es requerido"));
             }
 
