@@ -31,7 +31,9 @@ jwt:
 webClient:
   microAutenticacion: "${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}"
 sqs:
-  region: "${JWT_SECRET:"
-  queueUrl: "${JWT_SECRET:"
-  accessKey: "${JWT_SECRET:"
-  secretKey: "${JWT_SECRET:"
+  region: "${SQS_REGION:}"
+  accessKey: "${SQS_ACCESS_KEY:}"
+  secretKey: "${SQS_SECRET_KEY:}"
+  queues:
+    solicitudActualizada: "${SQS_QUEUES_SOLICITUD_ACTUALIZADA:}"
+    capacidadEndeudamiento: "${SQS_QUEUES_CAPACIDAD_ENDEUDAMIENTO:}"

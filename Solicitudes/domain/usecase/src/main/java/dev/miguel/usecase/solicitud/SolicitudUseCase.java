@@ -8,6 +8,7 @@ import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
 import dev.miguel.model.tipoprestamo.gateways.TipoPrestamoRepository;
 import dev.miguel.model.utils.page.PageModel;
+import dev.miguel.model.utils.sqs.QueueAlias;
 import dev.miguel.model.utils.sqs.SQSMessage;
 import dev.miguel.model.utils.sqs.gateway.ISQSService;
 import dev.miguel.model.utils.userContext.UserContext;
@@ -71,6 +72,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                         return solicitudRepository.saveSolicitud(solicitud)
                             .flatMap(saved ->
                                 sqsService.send(
+                                    QueueAlias.SOLICITUD_ACTUALIZADA.alias(),
                                     SQSMessage.builder()
                                         .solicitudId(saved.getId())
                                         .correoElectronico(saved.getCorreoElectronico())

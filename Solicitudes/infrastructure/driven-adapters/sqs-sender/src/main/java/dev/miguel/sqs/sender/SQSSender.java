@@ -16,21 +16,28 @@ import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 @Log4j2
 @RequiredArgsConstructor
 public class SQSSender implements ISQSService {
+
     private final SQSSenderProperties properties;
     private final SqsAsyncClient client;
+    private final Gson gson = new Gson();
 
     @Override
-    public Mono<String> send(SQSMessage message) {
-        return Mono.fromCallable(() -> buildRequest(new Gson().toJson(message)))
-                .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.debug("Message sent {}", response.messageId()))
+    public Mono<String> send(String queueAlias, SQSMessage message) {
+        String queueUrl = properties.queues().get(queueAlias);
+        if (queueUrl == null) {
+            return Mono.error(new IllegalArgumentException("Alias de cola no configurado: " + queueAlias));
+        }
+
+        return Mono.fromCallable(() -> buildRequest(queueUrl, gson.toJson(message)))
+                .flatMap(req -> Mono.fromFuture(client.sendMessage(req)))
+                .doOnNext(resp -> log.debug("Message sent to {} id={}", queueAlias, resp.messageId()))
                 .map(SendMessageResponse::messageId);
     }
 
-    private SendMessageRequest buildRequest(String message) {
+    private SendMessageRequest buildRequest(String queueUrl, String body) {
         return SendMessageRequest.builder()
-                .queueUrl(properties.queueUrl())
-                .messageBody(message)
+                .queueUrl(queueUrl)
+                .messageBody(body)
                 .build();
     }
 }

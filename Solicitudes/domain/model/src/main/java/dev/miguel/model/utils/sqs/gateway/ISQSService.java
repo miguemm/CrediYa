@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface ISQSService {
 
-    Mono<String> send(SQSMessage message);
+    Mono<String> send(String queueAlias, SQSMessage message);
 }
