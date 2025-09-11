@@ -1,5 +1,6 @@
 package dev.miguel.usecase.solicitud;
 
+import dev.miguel.model.estado.Estado;
 import dev.miguel.model.estado.gateways.EstadoRepository;
 import dev.miguel.model.solicitud.Solicitud;
 import dev.miguel.model.solicitud.gateways.SolicitudRepository;
@@ -9,6 +10,8 @@ import dev.miguel.model.utils.exceptions.BusinessException;
 import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import dev.miguel.model.utils.exceptions.ForbiddenException;
 import dev.miguel.model.utils.page.PageModel;
+import dev.miguel.model.utils.sqs.SQSMessage;
+import dev.miguel.model.utils.sqs.gateway.ISQSService;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
@@ -44,6 +47,7 @@ public class SolicitudUseCaseTest {
     @Mock private TipoPrestamoRepository tipoPrestamoRepository;
     @Mock private EstadoRepository estadoRepository;
     @Mock private ValidatorSolicitudUseCase validator;
+    @Mock private ISQSService sqsService;
     
     @Mock
     private IGetUserDetailsById getUserDetailsById;
@@ -268,11 +272,21 @@ public class SolicitudUseCaseTest {
             Solicitud solicitud = new Solicitud();
             solicitud.setId(solicitudId);
             solicitud.setEstadoId(99L);
+            solicitud.setCorreoElectronico("test@mail.com");
 
-//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
-            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.just(solicitud));
-            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(true));
-            when(solicitudRepository.saveSolicitud(any(Solicitud.class))).thenReturn(Mono.just(solicitud));
+            Estado estado = new Estado();
+            estado.setId(estadoId);
+            estado.setNombre("APROBADA");
+
+            when(solicitudRepository.findSolicitudById(solicitudId))
+                    .thenReturn(Mono.just(solicitud));
+            when(estadoRepository.findEstadoById(estadoId))
+                    .thenReturn(Mono.just(estado));
+
+            when(solicitudRepository.saveSolicitud(any(Solicitud.class)))
+                    .thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+            when(sqsService.send(any(SQSMessage.class)))
+                    .thenReturn(Mono.just("msg-123"));
 
             StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
                     .verifyComplete();
@@ -285,15 +299,17 @@ public class SolicitudUseCaseTest {
             Long solicitudId = 1L;
             Long estadoId = 2L;
 
-//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
-            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.empty());
-            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(false));
+            when(solicitudRepository.findSolicitudById(solicitudId))
+                    .thenReturn(Mono.empty());
 
             StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
-                    .expectError(BusinessException.class)
+                    .expectErrorSatisfies(err -> {
+                        assertTrue(err instanceof BusinessException);
+                        assertEquals(ExceptionMessages.SOLICITUD_NO_EXISTE, err.getMessage());
+                    })
                     .verify();
-
         }
+
 
         @Test
         @DisplayName("Estado no existe -> BusinessException")
@@ -304,14 +320,17 @@ public class SolicitudUseCaseTest {
             Solicitud solicitud = new Solicitud();
             solicitud.setId(solicitudId);
 
-//            when(validator.validateUpdateSolicitud(solicitudId, estadoId)).thenReturn(Mono.empty());
-            when(solicitudRepository.findSolicitudById(solicitudId)).thenReturn(Mono.just(solicitud));
-            when(estadoRepository.existsEstadoById(estadoId)).thenReturn(Mono.just(false));
+            when(solicitudRepository.findSolicitudById(solicitudId))
+                    .thenReturn(Mono.just(solicitud));
+            when(estadoRepository.findEstadoById(estadoId))
+                    .thenReturn(Mono.empty());
 
             StepVerifier.create(useCase.updateSolicitud(solicitudId, estadoId))
-                    .expectError(BusinessException.class)
+                    .expectErrorSatisfies(err -> {
+                        assertTrue(err instanceof BusinessException);
+                        assertEquals(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE, err.getMessage());
+                    })
                     .verify();
-
         }
     }
 
