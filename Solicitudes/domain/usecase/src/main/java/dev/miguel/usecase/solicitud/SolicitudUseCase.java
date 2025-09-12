@@ -84,6 +84,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                  return queueService.send(
                                     QueueAlias.CAPACIDAD_ENDEUDAMIENTO.alias(),
                                     QueueCapacidadEndeudamientoMessage.builder()
+                                            .solicitudId(nuevaSolicitud.getId())
                                             .monto(solicitud.getMonto())
                                             .plazo(solicitud.getPlazo())
                                             .tasaInteres(tipoPrestamo.getTasaInteres())

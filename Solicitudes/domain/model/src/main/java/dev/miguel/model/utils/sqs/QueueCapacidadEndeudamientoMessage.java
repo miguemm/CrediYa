@@ -13,6 +13,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @ToString
 public class QueueCapacidadEndeudamientoMessage {
+    Long solicitudId;
     BigDecimal monto;
     Integer plazo;
     double tasaInteres;
