@@ -19,6 +19,7 @@ public class SolicitudDto {
         Integer plazo;
         String correoElectronico;
         String tipoPrestamo;
+        double tasaInteres;
         String estado;
         UserDetails user;
 

@@ -28,39 +28,39 @@ public class UserHandler {
         log.info("--- Petición recibida en createUser ---");
 
         return serverRequest.bodyToMono(CreateUserDTO.class)
-                .doOnNext(dto -> log.info("DTO recibido: {}", dto))
-                .map(userDtoMapper::toDomain)
-                .doOnNext(user -> log.info("Entidad mapeada a dominio: {}", user))
-                .flatMap(user -> userUseCase.createUser(user).thenReturn(user))
-                .flatMap(user -> {
-                    var location = URI.create("/api/v1/usuario/" + user.getId());
-                    return ServerResponse.created(location).build();
-                })
-                .doOnError(error -> log.error("Error en createUser", error));
+            .doOnNext(dto -> log.info("DTO recibido: {}", dto))
+            .map(userDtoMapper::toDomain)
+            .doOnNext(user -> log.info("Entidad mapeada a dominio: {}", user))
+            .flatMap(user -> userUseCase.createUser(user).thenReturn(user))
+            .flatMap(user -> {
+                var location = URI.create("/api/v1/usuario/" + user.getId());
+                return ServerResponse.created(location).build();
+            })
+            .doOnError(error -> log.error("Error en createUser", error));
     }
 
     @PreAuthorize("hasAnyRole('asesor', 'cliente')")
     public Mono<ServerResponse> getUserById(ServerRequest req) {
         Long id = Long.valueOf(req.pathVariable("id"));
         return userUseCase.getUserById(id)
-                .flatMap(response -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(response)
-                )
-                .doOnError(error -> log.error("Error en logIn", error));
+            .flatMap(response -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(response)
+            )
+            .doOnError(error -> log.error("Error en logIn", error));
     }
 
     public Mono<ServerResponse> logIn(ServerRequest request) {
         log.info("--- Petición recibida en logIn ---");
 
         return request.bodyToMono(LogInDTO.class)
-                .doOnNext(dto -> log.info("Iniciando sesión para: {}", dto.correoElectronico()))
-                .flatMap(dto -> userUseCase.login(dto.correoElectronico(), dto.contrasenia()))
-                .flatMap(response -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(response)
-                )
-                .doOnError(error -> log.error("Error en logIn", error));
+            .doOnNext(dto -> log.info("Iniciando sesión para: {}", dto.correoElectronico()))
+            .flatMap(dto -> userUseCase.login(dto.correoElectronico(), dto.contrasenia()))
+            .flatMap(response -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(response)
+            )
+            .doOnError(error -> log.error("Error en logIn", error));
     }
 
 }

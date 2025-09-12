@@ -15,6 +15,7 @@ import dev.miguel.model.utils.sqs.QueueCapacidadEndeudamientoMessage;
 import dev.miguel.model.utils.sqs.QueueUpdateSolicitudMessage;
 import dev.miguel.model.utils.sqs.gateway.IQueueService;
 import dev.miguel.model.utils.userContext.UserContext;
+import dev.miguel.model.utils.userContext.UserDetails;
 import dev.miguel.model.utils.userContext.gateways.IGetUserDetailsById;
 import dev.miguel.usecase.solicitud.gateways.ISolicitudUseCase;
 import dev.miguel.model.utils.exceptions.ExceptionMessages;
@@ -22,6 +23,8 @@ import dev.miguel.usecase.solicitud.validations.ValidatorSolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class SolicitudUseCase implements ISolicitudUseCase {
@@ -62,24 +65,35 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                 solicitud.setUsuarioId(Long.valueOf(user.id()));
 
                 return solicitudRepository.saveSolicitud(solicitud)
-                    .flatMap(saved -> {
+                    .flatMap(nuevaSolicitud -> {
 
                         if (!tipoPrestamo.isValidacionAutomatica()) {
                             return Mono.empty();
                         }
 
-                        return getUserDetailsById.getUserDetailsById(saved.getUsuarioId())
-                            .flatMap(userDetails ->
-                                queueService.send(
+                        return getUserDetailsById.getUserDetailsById(nuevaSolicitud.getUsuarioId())
+                            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.USUARIO_NO_EXISTE)))
+                            .zipWith(
+                                    solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(Long.valueOf(user.id()))
+                                            .collectList()
+                            )
+                            .flatMap(tuple -> {
+                                UserDetails usuario = tuple.getT1();
+                                List<SolicitudDto> solicitudes = tuple.getT2();
+
+                                 return queueService.send(
                                     QueueAlias.CAPACIDAD_ENDEUDAMIENTO.alias(),
                                     QueueCapacidadEndeudamientoMessage.builder()
-                                        .solicitudId(saved.getId())
-                                        .correoElectronico(saved.getCorreoElectronico())
-                                        .salarioBase(userDetails.salarioBase())
-                                        .build()
-                                )
-                            )
-                            .then();
+                                            .monto(solicitud.getMonto())
+                                            .plazo(solicitud.getPlazo())
+                                            .tasaInteres(tipoPrestamo.getTasaInteres())
+                                            .correoElectronico(solicitud.getCorreoElectronico())
+                                            .nombreCompleto(usuario.nombres() + ' ' + usuario.apellidos())
+                                            .ingresosTotales(usuario.salarioBase())
+                                            .solicitudesActivas(solicitudes)
+                                            .build()
+                                 );
+                            }).then();
                     });
             });
     }
@@ -122,11 +136,11 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                 return Flux.fromIterable(pageable.getContent())
                     .flatMapSequential(dto ->
                         getUserDetailsById.getUserDetailsById(dto.getUsuarioId())
-                                .map(userDetails -> {
-                                    dto.setUser(userDetails);
-                                    return dto;
-                                })
-                                .onErrorResume(e -> Mono.just(dto)), 10
+                            .map(userDetails -> {
+                                dto.setUser(userDetails);
+                                return dto;
+                            })
+                            .onErrorResume(e -> Mono.just(dto)), 10
 
                     )
                     .collectList()

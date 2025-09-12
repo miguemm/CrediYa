@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -50,10 +51,19 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
     }
 
     @Override
+    public Flux<SolicitudDto> findAllSolicitudesAprobadasByUsuarioId(Long userId) {
+        log.info("Find all solicitudes by userId: {}", userId);
+
+        return repository.findAllSolicitudesAprobadasByUsuarioId(userId)
+                .doOnComplete(() -> log.info("Fetched all solicitudes for userId={}", userId))
+                .doOnError(err -> log.error("Error fetching solicitudes for userId={}", userId, err));
+    }
+
+    @Override
     public Mono<PageModel<SolicitudDto>> findAll(String correo, Long tipoPrestamoId, Long estadoId, int page, int size) {
         long offset = (long) page * size;
 
-        Mono<List<SolicitudDto>> rows = repository.findAllProjected(estadoId, correo, tipoPrestamoId, size, offset).collectList();
+        Mono<List<SolicitudDto>> rows = repository.findAllSolicitudesFiltered(estadoId, correo, tipoPrestamoId, size, offset).collectList();
         Mono<Long> total = repository.countAllProjected(estadoId, correo, tipoPrestamoId);
 
         return Mono.zip(rows, total)

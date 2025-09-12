@@ -18,6 +18,7 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
              s.plazo,
              s.correo_electronico AS correo_electronico,
              tipo.nombre     AS tipo_prestamo,
+             tipo.tasa_interes AS tasa_interes,
              estado.nombre   AS estado,
              s.usuario_id AS usuario_id
            FROM solicitud s
@@ -29,7 +30,7 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
            ORDER BY s.solicitud_id ASC
            LIMIT :limit OFFSET :offset
     """)
-    Flux<SolicitudDto> findAllProjected(
+    Flux<SolicitudDto> findAllSolicitudesFiltered(
             @Param("estadoId") Long estadoId,
             @Param("correo") String correo,
             @Param("tipoPrestamoId") Long tipoPrestamoId,
@@ -52,5 +53,23 @@ public interface SolicitudReactiveRepository extends ReactiveCrudRepository<Soli
             @Param("tipoPrestamoId") Long tipoPrestamoId
     );
 
+    @Query("""
+        SELECT            
+             s.solicitud_id AS solicitud_id,             
+             s.monto,
+             s.plazo,
+             s.correo_electronico AS correo_electronico,
+             tipo.nombre     AS tipo_prestamo,
+             tipo.tasa_interes AS tasa_interes,
+             estado.nombre   AS estado,
+             s.usuario_id AS usuario_id
+           FROM solicitud s
+           JOIN tipo_prestamo tipo ON tipo.tipo_prestamo_id = s.tipo_prestamo_id
+           JOIN estado ON estado.estado_id = s.estado_id
+           WHERE s.usuario_id = :usuarioId AND s.estado_id  = 2
+    """)
+    Flux<SolicitudDto> findAllSolicitudesAprobadasByUsuarioId(
+            @Param("usuarioId") Long usuarioId
+    );
 
 }

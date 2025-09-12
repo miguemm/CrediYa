@@ -22,6 +22,7 @@ public class SQSSender implements IQueueService {
 
     @Override
     public <T> Mono<String> send(String queueAlias, T message) {
+        log.info("Data to be queue {}", message);
         String queueUrl = properties.queues().get(queueAlias);
         if (queueUrl == null) {
             return Mono.error(new IllegalArgumentException("Alias de cola no configurado: " + queueAlias));
@@ -29,7 +30,7 @@ public class SQSSender implements IQueueService {
 
         return Mono.fromCallable(() -> buildRequest(queueUrl, gson.toJson(message)))
                 .flatMap(req -> Mono.fromFuture(client.sendMessage(req)))
-                .doOnNext(resp -> log.debug("Message sent to {} id={}", queueAlias, resp.messageId()))
+                .doOnNext(resp -> log.info("Message sent to {} id={}", queueAlias, resp.messageId()))
                 .map(SendMessageResponse::messageId);
     }
 

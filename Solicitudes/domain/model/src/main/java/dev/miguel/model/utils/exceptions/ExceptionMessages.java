@@ -16,4 +16,6 @@ public final class ExceptionMessages {
 
     public static final String SOLICITUD_A_OTRO_USUARIO = "No puedes crear solicitudes en nombre de otro usuario.";
     public static final String SOLICITUD_NO_EXISTE = "La solicitud no existe.";
+
+    public static final String USUARIO_NO_EXISTE = "Error al obtener los detalles del usuario.";
 }

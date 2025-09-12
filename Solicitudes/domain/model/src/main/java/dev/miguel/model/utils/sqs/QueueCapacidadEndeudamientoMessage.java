@@ -1,8 +1,10 @@
 package dev.miguel.model.utils.sqs;
 
+import dev.miguel.model.solicitud.proyections.SolicitudDto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,7 +13,11 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 @ToString
 public class QueueCapacidadEndeudamientoMessage {
-    Long solicitudId;
+    BigDecimal monto;
+    Integer plazo;
+    double tasaInteres;
     String correoElectronico;
-    BigDecimal salarioBase;
+    String nombreCompleto;
+    BigDecimal ingresosTotales;
+    List<SolicitudDto> solicitudesActivas;
 }
