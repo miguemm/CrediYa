@@ -33,6 +33,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private static final Long ESTADO_PENDIENTE_REVISION_ID = 1L;
     private static final Long ESTADO_APROBADO_ID = 2L;
     private static final Long ESTADO_RECHAZADO_ID = 3L;
+    private static final Long ESTADO_RVISION_MANUAL_ID = 4L;
 
     private final SolicitudRepository solicitudRepository;
     private final EstadoRepository estadoRepository;
@@ -117,38 +118,44 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                     solicitud.setEstadoId(estado.getId());
 
                                     return solicitudRepository.saveSolicitud(solicitud)
-                                            .flatMap(nuevaSolicitud ->
-                                                    Mono.zip(
-                                                                    // 1) La solicitud ya guardada
-                                                                    Mono.just(nuevaSolicitud),
+                                            .flatMap(nuevaSolicitud -> {
 
-                                                                    // 2) Las solicitudes aprobadas del usuario (después del save)
-                                                                    solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(nuevaSolicitud.getUsuarioId())
-                                                                            .collectList(),
+                                                // Si el nuevo estado es revision manual no enviamos notificación a SQS
+                                                if (Objects.equals(solicitud.getEstadoId(), ESTADO_RVISION_MANUAL_ID)) {
+                                                    return Mono.empty();
+                                                }
 
-                                                                    // 3) El tipo de préstamo de la solicitud
-                                                                    tipoPrestamoRepository.findTipoPrestamoById(nuevaSolicitud.getTipoPrestamoId())
-                                                                            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE)))
-                                                            )
-                                                            .flatMap(tuple3 -> {
-                                                                var saved = tuple3.getT1();
-                                                                var solicitudesActivas = tuple3.getT2();
-                                                                var tipoPrestamo = tuple3.getT3();
+                                                return Mono.zip(
+                                                                // 1) La solicitud ya guardada
+                                                                Mono.just(nuevaSolicitud),
 
-                                                                // Construimos el mensaje para la cola
-                                                                var message = QueueUpdateSolicitudMessage.builder()
-                                                                        .solicitudId(saved.getId())
-                                                                        .correoElectronico(saved.getCorreoElectronico())
-                                                                        .estado(estado.getNombre())
-                                                                        .monto(solicitud.getMonto())
-                                                                        .plazo(solicitud.getPlazo())
-                                                                        .tasaInteres(tipoPrestamo.getTasaInteres())
-                                                                        .solicitudesActivas(solicitudesActivas)
-                                                                        .build();
+                                                                // 2) Las solicitudes aprobadas del usuario (después del save)
+                                                                solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(nuevaSolicitud.getUsuarioId())
+                                                                        .collectList(),
 
-                                                                return queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
-                                                            })
-                                            );
+                                                                // 3) El tipo de préstamo de la solicitud
+                                                                tipoPrestamoRepository.findTipoPrestamoById(nuevaSolicitud.getTipoPrestamoId())
+                                                                        .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE)))
+                                                        )
+                                                        .flatMap(tuple3 -> {
+                                                            var saved = tuple3.getT1();
+                                                            var solicitudesActivas = tuple3.getT2();
+                                                            var tipoPrestamo = tuple3.getT3();
+
+                                                            // Construimos el mensaje para la cola
+                                                            var message = QueueUpdateSolicitudMessage.builder()
+                                                                    .solicitudId(saved.getId())
+                                                                    .correoElectronico(saved.getCorreoElectronico())
+                                                                    .estado(estado.getNombre())
+                                                                    .monto(solicitud.getMonto())
+                                                                    .plazo(solicitud.getPlazo())
+                                                                    .tasaInteres(tipoPrestamo.getTasaInteres())
+                                                                    .solicitudesActivas(solicitudesActivas)
+                                                                    .build();
+
+                                                            return queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
+                                                        });
+                                            });
                                 });
                 })
                 .then();
