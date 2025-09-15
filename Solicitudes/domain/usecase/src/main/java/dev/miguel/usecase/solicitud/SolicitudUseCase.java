@@ -110,16 +110,24 @@ public class SolicitudUseCase implements ISolicitudUseCase {
 
                         solicitud.setEstadoId(estado.getId());
                         return solicitudRepository.saveSolicitud(solicitud)
-                            .flatMap(saved ->
-                                queueService.send(
-                                    QueueAlias.SOLICITUD_ACTUALIZADA.alias(),
-                                    QueueUpdateSolicitudMessage.builder()
-                                        .solicitudId(saved.getId())
-                                        .correoElectronico(saved.getCorreoElectronico())
-                                        .estado(estado.getNombre())
-                                        .build()
-                                )
-                            );
+                            .zipWith(
+                                    solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(solicitud.getUsuarioId())
+                                            .collectList()
+                            )
+                            .flatMap(tuple -> {
+                                Solicitud nuevaSolicitud = tuple.getT1();
+                                List<SolicitudDto> solicitudesActivas = tuple.getT2();
+
+                                return queueService.send(
+                                        QueueAlias.SOLICITUD_ACTUALIZADA.alias(),
+                                        QueueUpdateSolicitudMessage.builder()
+                                                .solicitudId(nuevaSolicitud.getId())
+                                                .correoElectronico(nuevaSolicitud.getCorreoElectronico())
+                                                .estado(estado.getNombre())
+                                                .solicitudesActivas(solicitudesActivas)
+                                                .build()
+                                );
+                            });
                     })
             )
             .then();

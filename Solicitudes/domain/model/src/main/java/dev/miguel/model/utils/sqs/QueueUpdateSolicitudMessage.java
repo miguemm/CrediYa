@@ -1,6 +1,9 @@
 package dev.miguel.model.utils.sqs;
 
+import dev.miguel.model.solicitud.proyections.SolicitudDto;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,4 +15,5 @@ public class QueueUpdateSolicitudMessage {
     Long solicitudId;
     String correoElectronico;
     String estado;
+    List<SolicitudDto> solicitudesActivas;
 }
