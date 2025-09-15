@@ -25,11 +25,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class SolicitudUseCase implements ISolicitudUseCase {
 
     private static final Long ESTADO_PENDIENTE_REVISION_ID = 1L;
+    private static final Long ESTADO_APROBADO_ID = 2L;
+    private static final Long ESTADO_RECHAZADO_ID = 3L;
 
     private final SolicitudRepository solicitudRepository;
     private final EstadoRepository estadoRepository;
@@ -102,36 +105,55 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     @Override
     public Mono<Void> updateSolicitud(Long solicitudId, Long estadoId) {
         return solicitudRepository.findSolicitudById(solicitudId)
-            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_NO_EXISTE)))
-            .flatMap(solicitud ->
-                estadoRepository.findEstadoById(estadoId)
-                    .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE)))
-                    .flatMap(estado -> {
+                .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_NO_EXISTE)))
+                .flatMap(solicitud -> {
+                        if (Objects.equals(solicitud.getEstadoId(), ESTADO_APROBADO_ID) | Objects.equals(solicitud.getEstadoId(), ESTADO_RECHAZADO_ID)) {
+                            return Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_YA_REVISADA));
+                        }
+                        return estadoRepository.findEstadoById(estadoId)
+                                .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.ESTADO_DE_LA_SOLICITUD_NO_EXISTE)))
+                                .flatMap(estado -> {
+                                    // Actualizamos el estado y guardamos
+                                    solicitud.setEstadoId(estado.getId());
 
-                        solicitud.setEstadoId(estado.getId());
-                        return solicitudRepository.saveSolicitud(solicitud)
-                            .zipWith(
-                                    solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(solicitud.getUsuarioId())
-                                            .collectList()
-                            )
-                            .flatMap(tuple -> {
-                                Solicitud nuevaSolicitud = tuple.getT1();
-                                List<SolicitudDto> solicitudesActivas = tuple.getT2();
+                                    return solicitudRepository.saveSolicitud(solicitud)
+                                            .flatMap(nuevaSolicitud ->
+                                                    Mono.zip(
+                                                                    // 1) La solicitud ya guardada
+                                                                    Mono.just(nuevaSolicitud),
 
-                                return queueService.send(
-                                        QueueAlias.SOLICITUD_ACTUALIZADA.alias(),
-                                        QueueUpdateSolicitudMessage.builder()
-                                                .solicitudId(nuevaSolicitud.getId())
-                                                .correoElectronico(nuevaSolicitud.getCorreoElectronico())
-                                                .estado(estado.getNombre())
-                                                .solicitudesActivas(solicitudesActivas)
-                                                .build()
-                                );
-                            });
-                    })
-            )
-            .then();
+                                                                    // 2) Las solicitudes aprobadas del usuario (después del save)
+                                                                    solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(nuevaSolicitud.getUsuarioId())
+                                                                            .collectList(),
+
+                                                                    // 3) El tipo de préstamo de la solicitud
+                                                                    tipoPrestamoRepository.findTipoPrestamoById(nuevaSolicitud.getTipoPrestamoId())
+                                                                            .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.TIPO_PRESTAMO_NO_EXISTE)))
+                                                            )
+                                                            .flatMap(tuple3 -> {
+                                                                var saved = tuple3.getT1();
+                                                                var solicitudesActivas = tuple3.getT2();
+                                                                var tipoPrestamo = tuple3.getT3();
+
+                                                                // Construimos el mensaje para la cola
+                                                                var message = QueueUpdateSolicitudMessage.builder()
+                                                                        .solicitudId(saved.getId())
+                                                                        .correoElectronico(saved.getCorreoElectronico())
+                                                                        .estado(estado.getNombre())
+                                                                        .monto(solicitud.getMonto())
+                                                                        .plazo(solicitud.getPlazo())
+                                                                        .tasaInteres(tipoPrestamo.getTasaInteres())
+                                                                        .solicitudesActivas(solicitudesActivas)
+                                                                        .build();
+
+                                                                return queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
+                                                            })
+                                            );
+                                });
+                })
+                .then();
     }
+
 
     @Override
     public Mono<PageModel<SolicitudDto>> findAll(String correoElectronico, Long tipoPrestamoId, Long estadoId, Integer page, Integer size, UserContext user) {
