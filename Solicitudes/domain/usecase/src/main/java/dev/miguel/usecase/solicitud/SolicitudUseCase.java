@@ -108,7 +108,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
         return solicitudRepository.findSolicitudById(solicitudId)
                 .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_NO_EXISTE)))
                 .flatMap(solicitud -> {
-                        if (Objects.equals(solicitud.getEstadoId(), ESTADO_APROBADO_ID) | Objects.equals(solicitud.getEstadoId(), ESTADO_RECHAZADO_ID)) {
+                        if (Objects.equals(solicitud.getEstadoId(), ESTADO_APROBADO_ID) || Objects.equals(solicitud.getEstadoId(), ESTADO_RECHAZADO_ID)) {
                             return Mono.error(new BusinessException(ExceptionMessages.SOLICITUD_YA_REVISADA));
                         }
                         return estadoRepository.findEstadoById(estadoId)
@@ -143,7 +143,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                                             var tipoPrestamo = tuple3.getT3();
 
                                                             // Construimos el mensaje para la cola
-                                                            var message = QueueUpdateSolicitudMessage.builder()
+                                                            QueueUpdateSolicitudMessage message = QueueUpdateSolicitudMessage.builder()
                                                                     .solicitudId(saved.getId())
                                                                     .correoElectronico(saved.getCorreoElectronico())
                                                                     .estado(estado.getNombre())
@@ -153,7 +153,13 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                                                     .solicitudesActivas(solicitudesActivas)
                                                                     .build();
 
-                                                            return queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
+                                                            Mono<String> notificacionSolicitudActualizada = queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
+
+                                                            Mono<String> reporteSolicitudAprobada = Objects.equals(saved.getEstadoId(), ESTADO_APROBADO_ID) ?
+                                                                    queueService.send(QueueAlias.REPORTE_SOLICITUD_APROBADA.alias(), "1")
+                                                                    : Mono.empty();
+
+                                                            return Mono.when(notificacionSolicitudActualizada, reporteSolicitudAprobada);
                                                         });
                                             });
                                 });

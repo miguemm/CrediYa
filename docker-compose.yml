@@ -115,6 +115,9 @@ services:
       SQS_QUEUES_SOLICITUD_ACTUALIZADA:   ${SQS_QUEUES_SOLICITUD_ACTUALIZADA}
       SQS_QUEUES_CAPACIDAD_ENDEUDAMIENTO: ${SQS_QUEUES_CAPACIDAD_ENDEUDAMIENTO}
       SQS_QUEUES_SOLICITUD_ACTUALIZADA_AUTOMATICAMENTE: ${SQS_QUEUES_SOLICITUD_ACTUALIZADA_AUTOMATICAMENTE}
+      SQS_QUEUES_REPORTE_SOLICITUD_APROBADA: ${SQS_QUEUES_REPORTE_SOLICITUD_APROBADA}
+
+      DYNAMO_DB_REPORTES_URL:     ${DYNAMO_DB_REPORTES_URL}
 
     depends_on:
       postgres-solicitudes:
@@ -122,3 +125,36 @@ services:
     ports:
       - "${SOLICITUDES_SERVER_PORT}:${SOLICITUDES_SERVER_PORT}"
     networks: [crediya_net]
+
+  # ===================== SOLICITUDES =====================
+  app-reportes:
+    image: crediya/reportes:1.0.0
+    build:
+      context: ./Reporte
+      dockerfile: deployment/Dockerfile
+    env_file:
+      - .env
+    environment:
+      # Server
+      SERVER_PORT:              ${REPORTES_SERVER_PORT}
+
+      # CORS / JWT
+      CORS_ALLOWED_ORIGINS:     ${CORS_ALLOWED_ORIGINS}
+      JWT_SECRET:               ${JWT_SECRET}
+      JWT_SECRET_IS_BASE64:     ${JWT_SECRET_IS_BASE64}
+
+      #AWS
+      AWS_ACCESS_KEY_ID:        ${SQS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY:    ${SQS_SECRET_KEY}
+      AWS_REGION:               ${SQS_REGION}
+
+      SQS_QUEUES_REPORTE_SOLICITUD_APROBADA: ${SQS_QUEUES_REPORTE_SOLICITUD_APROBADA}
+
+      DYNAMO_DB_REPORTES_URL:     ${DYNAMO_DB_REPORTES_URL}
+      SPRING_PROFILES_ACTIVE:     ${SPRING_PROFILES_ACTIVE}
+
+
+    ports:
+      - "${REPORTES_SERVER_PORT}:${REPORTES_SERVER_PORT}"
+    networks: [ crediya_net ]
+

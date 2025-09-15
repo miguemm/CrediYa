@@ -37,6 +37,7 @@ sqs:
   queues:
     solicitudActualizada: "${SQS_QUEUES_SOLICITUD_ACTUALIZADA:}"
     capacidadEndeudamiento: "${SQS_QUEUES_CAPACIDAD_ENDEUDAMIENTO:}"
+    solicitudAprobada: "${SQS_QUEUES_REPORTE_SOLICITUD_APROBADA:}"
 entrypoint:
   sqs:
     region: "${SQS_REGION:}"
