@@ -33,7 +33,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
     private static final Long ESTADO_PENDIENTE_REVISION_ID = 1L;
     private static final Long ESTADO_APROBADO_ID = 2L;
     private static final Long ESTADO_RECHAZADO_ID = 3L;
-    private static final Long ESTADO_RVISION_MANUAL_ID = 4L;
+    private static final Long ESTADO_REVISION_MANUAL_ID = 4L;
 
     private final SolicitudRepository solicitudRepository;
     private final EstadoRepository estadoRepository;
@@ -121,7 +121,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                             .flatMap(nuevaSolicitud -> {
 
                                                 // Si el nuevo estado es revision manual no enviamos notificación a SQS
-                                                if (Objects.equals(solicitud.getEstadoId(), ESTADO_RVISION_MANUAL_ID)) {
+                                                if (Objects.equals(solicitud.getEstadoId(), ESTADO_REVISION_MANUAL_ID)) {
                                                     return Mono.empty();
                                                 }
 
