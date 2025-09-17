@@ -325,7 +325,8 @@ public class RouterRest {
                                             content = @Content(mediaType = "application/json",
                                                     examples = @ExampleObject(value = """
                                                             { "message": "No autenticado" }
-                                                        """)
+                                                        """
+                                                    )
                                             )
                                     ),
                                     @ApiResponse(
@@ -333,8 +334,9 @@ public class RouterRest {
                                             description = "No autorizado (solo asesores pueden actualizar estados).",
                                             content = @Content(mediaType = "application/json",
                                                     examples = @ExampleObject(value = """
-                                                        { "message": "Solo los asesores pueden actualizar el estado de una solicitud." }
-                                                    """)
+                                                            { "message": "Solo los asesores pueden actualizar el estado de una solicitud." }
+                                                        """
+                                                    )
                                             )
                                     ),
                                     @ApiResponse(
@@ -342,8 +344,9 @@ public class RouterRest {
                                             description = "Solicitud o estado no encontrado.",
                                             content = @Content(mediaType = "application/json",
                                                     examples = @ExampleObject(value = """
-                                            { "message": "Solicitud no encontrada" }
-                                        """)
+                                                            { "message": "Solicitud no encontrada" }
+                                                        """
+                                                    )
                                             )
                                     ),
                             }
