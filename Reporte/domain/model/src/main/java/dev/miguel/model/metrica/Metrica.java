@@ -1,14 +1,13 @@
 package dev.miguel.model.metrica;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-//import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-//@NoArgsConstructor
-@AllArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Metrica {
+    private String metrica;
+    private Integer cantidad;
 }

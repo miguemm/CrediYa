@@ -2,6 +2,7 @@ package dev.miguel.dynamodb;
 
 import dev.miguel.dynamodb.helper.TemplateAdapterOperations;
 import dev.miguel.model.metrica.Metrica;
+import dev.miguel.model.metrica.gateways.MetricaRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
@@ -14,7 +15,7 @@ import java.util.List;
 
 
 @Repository
-public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Metrica /*domain model*/, String, MetricaEntity /*adapter model*/> /* implements Gateway from domain */ {
+public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Metrica /*domain model*/, String, MetricaEntity /*adapter model*/> implements MetricaRepository/* implements Gateway from domain */ {
 
     public DynamoDBTemplateAdapter(DynamoDbEnhancedAsyncClient connectionFactory, ObjectMapper mapper) {
         /**

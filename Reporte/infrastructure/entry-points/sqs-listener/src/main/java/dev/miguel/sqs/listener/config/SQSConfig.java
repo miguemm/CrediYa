@@ -33,11 +33,11 @@ public class SQSConfig {
     }
 
     @Bean
-    public SqsAsyncClient configSqs(SQSProperties properties, MetricPublisher publisher) {
+    public SqsAsyncClient configSqs(SQSProperties properties) {
         return SqsAsyncClient.builder()
                 .endpointOverride(resolveEndpoint(properties))
                 .region(Region.of(properties.region()))
-                .overrideConfiguration(o -> o.addMetricPublisher(publisher))
+//                .overrideConfiguration(o -> o.addMetricPublisher(publisher))
                 .credentialsProvider(getProviderChain())
                 .build();
     }
