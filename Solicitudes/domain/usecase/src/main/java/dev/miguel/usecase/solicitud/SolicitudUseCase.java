@@ -142,7 +142,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                                             var solicitudesActivas = tuple3.getT2();
                                                             var tipoPrestamo = tuple3.getT3();
 
-                                                            // Construimos el mensaje para la cola
+                                                            // Construimos el mensaje para la cola de actualizacion
                                                             QueueUpdateSolicitudMessage message = QueueUpdateSolicitudMessage.builder()
                                                                     .solicitudId(saved.getId())
                                                                     .correoElectronico(saved.getCorreoElectronico())
@@ -152,9 +152,9 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                                                     .tasaInteres(tipoPrestamo.getTasaInteres())
                                                                     .solicitudesActivas(solicitudesActivas)
                                                                     .build();
-
                                                             Mono<String> notificacionSolicitudActualizada = queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
 
+                                                            // Si la solicitud es aprobada enviamos data a la cola de reportes
                                                             Mono<String> reporteSolicitudAprobada = Objects.equals(saved.getEstadoId(), ESTADO_APROBADO_ID) ?
                                                                     queueService.send(QueueAlias.REPORTE_SOLICITUD_APROBADA.alias(), saved.getMonto())
                                                                     : Mono.empty();
