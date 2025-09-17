@@ -8,7 +8,5 @@ import java.util.Map;
 public record SQSSenderProperties(
      String region,
      String endpoint,
-     String accessKey,
-     String secretKey,
      Map<String, String> queues
 ){}
