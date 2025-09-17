@@ -20,29 +20,19 @@ public class SQSSenderConfig {
                 .endpointOverride(resolveEndpoint(properties))
                 .region(Region.of(properties.region()))
                 .overrideConfiguration(o -> o.addMetricPublisher(publisher))
-                .credentialsProvider(getProviderChain(properties))
+                .credentialsProvider(getProviderChain())
                 .build();
     }
 
-    private AwsCredentialsProviderChain getProviderChain(SQSSenderProperties properties) {
-        AwsCredentialsProviderChain.Builder chain = AwsCredentialsProviderChain.builder();
-
-        if (properties.accessKey() != null && properties.secretKey() != null) {
-            chain.addCredentialsProvider(
-                    StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create(properties.accessKey(), properties.secretKey())
-                    )
-            );
-        }
-
-        chain.addCredentialsProvider(EnvironmentVariableCredentialsProvider.create());
-        chain.addCredentialsProvider(SystemPropertyCredentialsProvider.create());
-        chain.addCredentialsProvider(WebIdentityTokenFileCredentialsProvider.create());
-        chain.addCredentialsProvider(ProfileCredentialsProvider.create());
-        chain.addCredentialsProvider(ContainerCredentialsProvider.builder().build());
-        chain.addCredentialsProvider(InstanceProfileCredentialsProvider.create());
-
-        return chain.build();
+    private AwsCredentialsProviderChain getProviderChain() {
+        return AwsCredentialsProviderChain.builder()
+                .addCredentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .addCredentialsProvider(SystemPropertyCredentialsProvider.create())
+                .addCredentialsProvider(WebIdentityTokenFileCredentialsProvider.create())
+                .addCredentialsProvider(ProfileCredentialsProvider.create())
+                .addCredentialsProvider(ContainerCredentialsProvider.builder().build())
+                .addCredentialsProvider(InstanceProfileCredentialsProvider.create())
+                .build();
     }
 
     private URI resolveEndpoint(SQSSenderProperties properties) {
