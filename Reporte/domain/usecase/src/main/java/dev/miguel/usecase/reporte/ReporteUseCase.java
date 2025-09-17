@@ -39,7 +39,7 @@ public class ReporteUseCase implements IReporteUseCase {
                 .flatMap(metrica -> {
                     if (metrica == null) {
                         Metrica nueva = Metrica.builder()
-                                .metrica(METRICA_APROBADOS)
+                                .metrica(METRICA_MONTO)
                                 .monto(monto)
                                 .build();
                         return metricaRepository.save(nueva);

@@ -7,9 +7,11 @@ spring:
     add-properties: false
   profiles:
     include: null
+
 aws:
   dynamodb:
     endpoint: "${DYNAMO_DB_REPORTES_URL:}"
+
 entrypoint:
   sqs:
     region: "${AWS_REGION:}"
@@ -18,3 +20,18 @@ entrypoint:
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
     numberOfThreads: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}"
+routes:
+  paths:
+    reportes: "${ROUTE_REPORTES:/api/v1/reportes}"
