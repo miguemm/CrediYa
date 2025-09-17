@@ -7,5 +7,5 @@ public final class ExceptionMessages {
     }
 
 
-    public static final String ERROR = "Error al consultar la metrica.";
+    public static final String METRICA_NO_EXISTE = "La metrica no existe.";
 }

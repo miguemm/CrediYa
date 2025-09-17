@@ -391,14 +391,13 @@ public class SolicitudUseCaseTest {
         @DisplayName("OK: actualiza estado != REVISION_MANUAL y envía mensaje a la cola")
         void updateSolicitud_ok_envia_cola() {
             Long solicitudId = 1L;
-            Long nuevoEstadoId = 200L; // cualquier estado válido distinto de REVISION_MANUAL
+            Long nuevoEstadoId = 200L; // distinto de REVISION_MANUAL y distinto de APROBADO
             Long usuarioId = 7L;
             Long tipoPrestamoId = 10L;
 
-            // Solicitud existente con datos necesarios para el zip posterior
             Solicitud solicitud = new Solicitud();
             solicitud.setId(solicitudId);
-            solicitud.setEstadoId(99L); // aún no aprobada/rechazada
+            solicitud.setEstadoId(99L);
             solicitud.setUsuarioId(usuarioId);
             solicitud.setTipoPrestamoId(tipoPrestamoId);
             solicitud.setMonto(new BigDecimal("1500000"));
@@ -407,12 +406,10 @@ public class SolicitudUseCaseTest {
 
             Estado estado = new Estado();
             estado.setId(nuevoEstadoId);
-            estado.setNombre("APROBADA"); // nombre que se incluirá en el mensaje
+            estado.setNombre("APROBADA"); // el nombre no importa para la lógica del segundo envío; importa el ID
 
-            // Tipo de préstamo usado para tasaInteres en el mensaje
             TipoPrestamo tipo = createTipoPrestamo(tipoPrestamoId, true);
 
-            // Aprobadas del usuario (puede ser lista vacía, pero añadimos una para validar)
             SolicitudDto aprobada = SolicitudDto.builder()
                     .usuarioId(usuarioId)
                     .solicitudId(777L)
@@ -430,36 +427,38 @@ public class SolicitudUseCaseTest {
             when(solicitudRepository.findAllSolicitudesAprobadasByUsuarioId(usuarioId))
                     .thenReturn(Flux.just(aprobada));
             when(solicitudRepository.saveSolicitud(any(Solicitud.class)))
-                    .thenAnswer(inv -> {
-                        Solicitud arg = inv.getArgument(0);
-                        return Mono.just(arg);
-                    });
+                    .thenAnswer(inv -> Mono.just(inv.getArgument(0)));
 
+            // Solo stub de la cola de actualización (esta sí debe dispararse)
             when(queueService.send(eq(QueueAlias.SOLICITUD_ACTUALIZADA.alias()), any(QueueUpdateSolicitudMessage.class)))
                     .thenReturn(Mono.just("msg-123"));
 
             StepVerifier.create(useCase.updateSolicitud(solicitudId, nuevoEstadoId))
                     .verifyComplete();
 
-            // Verificar que guardó con el estado nuevo
+            // Verificar que guardó con el estado nuevo (200L)
             ArgumentCaptor<Solicitud> saveCap = ArgumentCaptor.forClass(Solicitud.class);
             verify(solicitudRepository).saveSolicitud(saveCap.capture());
             assertEquals(nuevoEstadoId, saveCap.getValue().getEstadoId());
 
-            // Verificar que se envió a la cola con campos coherentes
+            // Verificar que se envió a la cola de actualización con campos coherentes
             ArgumentCaptor<QueueUpdateSolicitudMessage> msgCap = ArgumentCaptor.forClass(QueueUpdateSolicitudMessage.class);
             verify(queueService).send(eq(QueueAlias.SOLICITUD_ACTUALIZADA.alias()), msgCap.capture());
             QueueUpdateSolicitudMessage msg = msgCap.getValue();
 
             assertEquals(solicitudId, msg.getSolicitudId());
             assertEquals("test@mail.com", msg.getCorreoElectronico());
-            assertEquals("APROBADA", msg.getEstado());
+            assertEquals("APROBADA", msg.getEstado()); // viene del nombre del Estado
             assertEquals(new BigDecimal("1500000"), msg.getMonto());
             assertEquals(12, msg.getPlazo());
             assertEquals(tipo.getTasaInteres(), msg.getTasaInteres(), 1e-9);
             assertNotNull(msg.getSolicitudesActivas());
             assertFalse(msg.getSolicitudesActivas().isEmpty());
+
+            // Verificar que NO se envió reporte (porque el ID no es ESTADO_APROBADO_ID)
+            verify(queueService, never()).send(eq(QueueAlias.REPORTE_SOLICITUD_APROBADA.alias()), any());
         }
+
 
         @Test
         @DisplayName("OK: nuevo estado REVISION_MANUAL -> NO envía mensaje a la cola")

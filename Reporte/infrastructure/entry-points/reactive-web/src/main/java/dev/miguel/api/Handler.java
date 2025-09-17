@@ -1,7 +1,5 @@
 package dev.miguel.api;
 
-import dev.miguel.model.utils.exceptions.BusinessException;
-import dev.miguel.model.utils.exceptions.ExceptionMessages;
 import dev.miguel.model.utils.exceptions.ForbiddenException;
 import dev.miguel.model.utils.userContext.UserContext;
 import dev.miguel.model.utils.userContext.gateways.IExtractUserContext;
