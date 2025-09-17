@@ -2,6 +2,8 @@ package dev.miguel.dynamodb;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
+import java.math.BigDecimal;
+
 /* Enhanced DynamoDB annotations are incompatible with Lombok #1932
          https://github.com/aws/aws-sdk-java-v2/issues/1932*/
 @DynamoDbBean
@@ -9,6 +11,7 @@ public class MetricaEntity {
 
     private String metrica;
     private Integer cantidad;
+    private BigDecimal monto;
 
     public MetricaEntity() {
     }
@@ -26,4 +29,12 @@ public class MetricaEntity {
     @DynamoDbAttribute("cantidad")
     public Integer getCantidad() { return cantidad; }
     public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+
+    @DynamoDbAttribute("monto")
+    public BigDecimal getMonto() {
+        return monto;
+    }
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
+    }
 }

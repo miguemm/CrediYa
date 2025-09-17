@@ -21,7 +21,7 @@ public class SQSProcessor implements Function<Message, Mono<Void>> {
 
     @Override
     public Mono<Void> apply(Message message) {
-        log.info("Message receive in the SQS Listener {}", message.body());
+        log.info("Message receive in the SQS Listener de Solicitudes{}", message.body());
 
         return Mono.fromCallable(() ->
                         gson.fromJson(message.body(), SolicitudActualizadaResponse.class)

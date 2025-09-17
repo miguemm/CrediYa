@@ -156,7 +156,7 @@ public class SolicitudUseCase implements ISolicitudUseCase {
                                                             Mono<String> notificacionSolicitudActualizada = queueService.send(QueueAlias.SOLICITUD_ACTUALIZADA.alias(), message);
 
                                                             Mono<String> reporteSolicitudAprobada = Objects.equals(saved.getEstadoId(), ESTADO_APROBADO_ID) ?
-                                                                    queueService.send(QueueAlias.REPORTE_SOLICITUD_APROBADA.alias(), "1")
+                                                                    queueService.send(QueueAlias.REPORTE_SOLICITUD_APROBADA.alias(), saved.getMonto())
                                                                     : Mono.empty();
 
                                                             return Mono.when(notificacionSolicitudActualizada, reporteSolicitudAprobada);
