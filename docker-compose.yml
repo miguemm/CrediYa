@@ -27,6 +27,9 @@ services:
       retries: 10
     networks: [crediya_net]
 
+
+
+
   app-autenticacion:
     image: crediya/autenticacion:1.0.0
     build:
@@ -47,16 +50,21 @@ services:
       ROUTE_USUARIO:          ${ROUTE_USUARIO}
       ROUTE_AUTENTICACION:    ${ROUTE_AUTENTICACION}
 
-      # R2DBC
-      SPRING_R2DBC_URL: r2dbc:postgresql://${AUTENTICACION_POSTGRES_HOST}:5432/${AUTENTICACION_POSTGRES_DB}
-      SPRING_R2DBC_USERNAME:  ${AUTENTICACION_POSTGRES_USER}
-      SPRING_R2DBC_PASSWORD:  ${AUTENTICACION_POSTGRES_PASSWORD}
-    depends_on:
-      postgres-autenticacion:
-        condition: service_healthy
+      SPRING_R2DBC_URL: r2dbc:postgresql://${AUTENTICACION_AWS_POSTGRES_HOST}:5432/?ssl=true&sslMode=require
+      SPRING_R2DBC_USERNAME: ${AUTENTICACION_AWS_POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD: ${AUTENTICACION_AWS_POSTGRES_PASSWORD}
+
     ports:
       - "${AUTENTICACION_SERVER_PORT}:${AUTENTICACION_SERVER_PORT}"
     networks: [crediya_net]
+
+
+
+
+
+
+
+
 
   # ===================== SOLICITUDES =====================
   postgres-solicitudes:

@@ -17,7 +17,8 @@ public class JwtFilter implements WebFilter {
             "/api/v1/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/webjars/swagger-ui/**"
+            "/webjars/swagger-ui/**",
+            "/actuator/**"
     };
 
     private final AntPathMatcher matcher = new AntPathMatcher();

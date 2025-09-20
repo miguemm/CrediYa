@@ -4,6 +4,7 @@ import dev.miguel.dynamodb.helper.TemplateAdapterOperations;
 import dev.miguel.model.metrica.Metrica;
 import dev.miguel.model.metrica.gateways.MetricaRepository;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
@@ -15,25 +16,21 @@ import java.util.List;
 
 
 @Repository
-public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Metrica /*domain model*/, String, MetricaEntity /*adapter model*/> implements MetricaRepository/* implements Gateway from domain */ {
+public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Metrica, String, MetricaEntity> implements MetricaRepository {
 
     public DynamoDBTemplateAdapter(DynamoDbEnhancedAsyncClient connectionFactory, ObjectMapper mapper) {
-        /**
-         *  Could be use mapper.mapBuilder if your domain model implement builder pattern
-         *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());
-         *  Or using mapper.map with the class of the object model
-         */
-        super(connectionFactory, mapper, d -> mapper.map(d, Metrica.class /*domain model*/), "Pragma_Reporte_Aprobados");
+
+        super(connectionFactory, mapper, d -> mapper.map(d, Metrica.class), "db-credi-ya-metricas");
     }
 
-    public Mono<List<Metrica /*domain model*/>> getEntityBySomeKeys(String partitionKey, String sortKey) {
+    public Mono<List<Metrica>> getEntityBySomeKeys(String partitionKey, String sortKey) {
         QueryEnhancedRequest queryExpression = generateQueryExpression(partitionKey, sortKey);
         return query(queryExpression);
     }
 
-    public Mono<List<Metrica /*domain model*/>> getEntityBySomeKeysByIndex(String partitionKey, String sortKey) {
+    public Mono<List<Metrica>> getEntityBySomeKeysByIndex(String partitionKey, String sortKey) {
         QueryEnhancedRequest queryExpression = generateQueryExpression(partitionKey, sortKey);
-        return queryByIndex(queryExpression, "secondary_index" /*index is optional if you define in constructor*/);
+        return queryByIndex(queryExpression, "secondary_index");
     }
 
     private QueryEnhancedRequest generateQueryExpression(String partitionKey, String sortKey) {

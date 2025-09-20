@@ -5,6 +5,14 @@ spring:
   application:
     name: "Autenticacion"
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+
+  r2dbc:
+    url: ${SPRING_R2DBC_URL}
+    username: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+
 management:
   endpoints:
     web:
@@ -22,15 +30,6 @@ routes:
   paths:
     usuario: ${ROUTE_USUARIO:/api/v1/usuario}
     authentication: ${ROUTE_AUTENTICACION:/api/v1/auth}
-
-adapters:
-  r2dbc:
-    host: ${AUTENTICACION_POSTGRES_HOST:localhost}
-    port: ${AUTENTICACION_POSTGRES_PORT:5432}
-    database: ${AUTENTICACION_POSTGRES_DB:autenticacion}
-    schema: ${AUTENTICACION_POSTGRES_SCHEMA:public}
-    username: ${AUTENTICACION_POSTGRES_USER:postgres}
-    password: ${AUTENTICACION_POSTGRES_PASSWORD:root}
 
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}

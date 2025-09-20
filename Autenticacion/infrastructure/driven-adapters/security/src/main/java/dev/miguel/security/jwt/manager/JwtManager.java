@@ -32,7 +32,7 @@ public class JwtManager implements ReactiveAuthenticationManager {
                     if (rolesObj instanceof List<?> list) {
 
                         authorities = list.stream()
-                                .map(Object::toString) // evitamos cast directo
+                                .map(Object::toString)
                                 .map(this::normalizeRole)
                                 .map(SimpleGrantedAuthority::new)
                                 .toList();
