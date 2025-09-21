@@ -1,8 +1,3 @@
-server:
-  port: "${SOLICITUDES_SERVER_PORT:8081}"
-spring:
-  application:
-    name: "Solicitudes"
 management:
   endpoints:
     web:
@@ -12,38 +7,61 @@ management:
     health:
       probes:
         enabled: true
-cors:
-  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}"
-routes:
-  paths:
-    solicitud: "${ROUTE_SOLICITUD:/api/v1/solicitud}"
+
+server:
+  port:                     ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: "Solicitudes"
+
+  profiles:
+    active:                 ${PROFILE_ACTIVE:local}
+
+  AWS_ACCESS_KEY_ID:        ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY:    ${AWS_SECRET_ACCESS_KEY}
+
+  r2dbc:
+    url:                    ${SPRING_R2DBC_URL}
+    username:               ${SPRING_R2DBC_USERNAME}
+    password:               ${SPRING_R2DBC_PASSWORD}
+
 adapters:
   r2dbc:
-    host: "${SOLICITUDES_POSTGRES_HOST:localhost}"
-    port: "${SOLICITUDES_POSTGRES_PORT:5432}"
-    database: "${SOLICITUDES_POSTGRES_DB:solicitudes}"
-    schema: "${SOLICITUDES_POSTGRES_SCHEMA:public}"
-    username: "${SOLICITUDES_POSTGRES_USER:postgres}"
-    password: "${SOLICITUDES_POSTGRES_PASSWORD:root}"
+    local:
+      host:                 ${R2DBC_HOST:localhost}
+      port:                 ${R2DBC_PORT:5432}
+      database:             ${R2DBC_DB:solicitudes}
+      schema:               ${R2DBC_SCHEMA:public}
+      username:             ${R2DBC_USER:postgres}
+      password:             ${R2DBC_PASSWORD:root}
+
+routes:
+  paths:
+    solicitud:              ${ROUTE_SOLICITUD:/api/v1/solicitud}
+
 jwt:
-  secret: "${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}"
-  secret-is-base64: "${JWT_SECRET_IS_BASE64:true}"
+  secret:                   "${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}"
+  secret-is-base64:         "${JWT_SECRET_IS_BASE64:true}"
+
+cors:
+  allowed-origins:          "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}"
+
 webClient:
-  microAutenticacion: "${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}"
+  microAutenticacion:       "${WEBCLIENT_MICRO_AUTENTICACION:http://localhost:8080/api/v1/usuario}"
+
 sqs:
-  region: "${AWS_REGION:}"
+  region:                   "${AWS_REGION:}"
   queues:
-    solicitudActualizada: "${SQS_SOLICITUD_ACTUALIZADA:}"
+    solicitudActualizada:   "${SQS_SOLICITUD_ACTUALIZADA:}"
     capacidadEndeudamiento: "${SQS_CAPACIDAD_ENDEUDAMIENTO:}"
-    solicitudAprobada: "${SQS_REPORTE_SOLICITUD_APROBADA:}"
+    solicitudAprobada:      "${SQS_REPORTE_SOLICITUD_APROBADA:}"
+
 entrypoint:
   sqs:
-    region: "${AWS_REGION:}"
-    queueUrl: "${SQS_SOLICITUD_ACTUALIZADA_AUTOMATICAMENTE:}"
+    region:                  "${AWS_REGION:}"
+    queueUrl:                "${SQS_SOLICITUD_ACTUALIZADA_AUTOMATICAMENTE:}"
     waitTimeSeconds: 20
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
     numberOfThreads: 1
-environment:
-  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}

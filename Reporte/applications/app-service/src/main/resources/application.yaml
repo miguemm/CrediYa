@@ -1,21 +1,21 @@
 server:
-  port: "${REPORTES_SERVER_PORT:8082}"
+  port:             ${REPORTES_SERVER_PORT:8082}
 spring:
   application:
     name: "reporte"
   devtools:
     add-properties: false
   profiles:
-    include: null
+    active:         ${PROFILE_ACTIVE:local}
 
 aws:
   dynamodb:
-    endpoint: "${DYNAMO_DB_REPORTES_URL:}"
+    endpoint:       ${DYNAMO_DB_REPORTES_URL:}
 
 entrypoint:
   sqs:
-    region: "${AWS_REGION:}"
-    queueUrl: "${SQS_REPORTE_SOLICITUD_APROBADA:}"
+    region:         ${AWS_REGION:}
+    queueUrl:       ${SQS_REPORTE_SOLICITUD_APROBADA:}
     waitTimeSeconds: 20
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
@@ -31,10 +31,10 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}"
+  allowed-origins:  ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
 jwt:
-  secret: "${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}"
-  secret-is-base64: "${JWT_SECRET_IS_BASE64:true}"
+  secret:           ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret-is-base64: ${JWT_SECRET_IS_BASE64:true}
 routes:
   paths:
-    reportes: "${ROUTE_REPORTES:/api/v1/reportes}"
+    reportes:       ${ROUTE_REPORTES:/api/v1/reportes}
