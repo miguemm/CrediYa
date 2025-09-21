@@ -1,18 +1,3 @@
-server:
-  port: ${AUTENTICACION_SERVER_PORT:8080}
-
-spring:
-  application:
-    name: "Autenticacion"
-
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE}
-
-  r2dbc:
-    url: ${SPRING_R2DBC_URL}
-    username: ${SPRING_R2DBC_USERNAME}
-    password: ${SPRING_R2DBC_PASSWORD}
-
 management:
   endpoints:
     web:
@@ -23,14 +8,40 @@ management:
       probes:
         enabled: true
 
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
+server:
+  port:             ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: "Autenticacion"
+
+  profiles:
+    active:         ${PROFILE_ACTIVE:local}
+
+  r2dbc:
+    url:            ${SPRING_R2DBC_URL}
+    username:       ${SPRING_R2DBC_USERNAME}
+    password:       ${SPRING_R2DBC_PASSWORD}
+
+adapters:
+  r2dbc:
+    local:
+      host:         ${R2DBC_HOST:localhost}
+      port:         ${R2DBC_PORT:5432}
+      database:     ${R2DBC_DB:autenticacion}
+      schema:       ${R2DBC_SCHEMA:public}
+      username:     ${R2DBC_USER:postgres}
+      password:     ${R2DBC_PASSWORD:root}
 
 routes:
   paths:
-    usuario: ${ROUTE_USUARIO:/api/v1/usuario}
+    usuario:        ${ROUTE_USUARIO:/api/v1/usuario}
     authentication: ${ROUTE_AUTENTICACION:/api/v1/auth}
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: ${JWT_EXPIRATION:86400000}
+  expiration:       ${JWT_EXPIRATION:86400000}
+  secret:           ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+
+cors:
+  allowed-origins:  ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
+

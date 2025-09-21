@@ -1,5 +1,3 @@
-# docker-compose.yml (raíz)
-
 volumes:
   pg_data_autenticacion:
   pg_data_solicitudes:
@@ -12,23 +10,20 @@ services:
   postgres-autenticacion:
     image: postgres:17
     ports:
-      - "${AUTENTICACION_POSTGRES_HOST_PORT}:5432"
+      - "${AUTENTICACION_DB_HOST_PORT}:${AUTENTICACION_DB_INTERNAL_PORT}"
     environment:
-      POSTGRES_DB:          ${AUTENTICACION_POSTGRES_DB}
-      POSTGRES_USER:        ${AUTENTICACION_POSTGRES_USER}
-      POSTGRES_PASSWORD:    ${AUTENTICACION_POSTGRES_PASSWORD}
+      POSTGRES_DB:              ${AUTENTICACION_DB}
+      POSTGRES_USER:            ${AUTENTICACION_DB_USER}
+      POSTGRES_PASSWORD:        ${AUTENTICACION_DB_PASSWORD}
     volumes:
       - pg_data_autenticacion:/var/lib/postgresql/data
       - ./Autenticacion/deployment/db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $AUTENTICACION_POSTGRES_USER -d $AUTENTICACION_POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $AUTENTICACION_DB_USER -d $AUTENTICACION_DB"]
       interval: 5s
       timeout: 3s
       retries: 10
     networks: [crediya_net]
-
-
-
 
   app-autenticacion:
     image: crediya/autenticacion:1.0.0
@@ -39,20 +34,22 @@ services:
       - .env
     environment:
       # Server
-      SERVER_PORT:            ${AUTENTICACION_SERVER_PORT}
+      SERVER_PORT:              ${AUTENTICACION_SERVER_PORT}
+      PROFILE_ACTIVE:           ${PROFILE_ACTIVE}
 
-      # CORS / JWT
-      CORS_ALLOWED_ORIGINS:   ${CORS_ALLOWED_ORIGINS}
-      JWT_SECRET:             ${JWT_SECRET}
-      JWT_EXPIRATION:         ${JWT_EXPIRATION}
+      # BD
+      SPRING_R2DBC_URL:         ${SPRING_R2DBC_URL}
+      SPRING_R2DBC_USERNAME:    ${SPRING_R2DBC_USERNAME}
+      SPRING_R2DBC_PASSWORD:    ${SPRING_R2DBC_PASSWORD}
 
       # Rutas
-      ROUTE_USUARIO:          ${ROUTE_USUARIO}
-      ROUTE_AUTENTICACION:    ${ROUTE_AUTENTICACION}
+      ROUTE_USUARIO:            ${ROUTE_USUARIO}
+      ROUTE_AUTENTICACION:      ${ROUTE_AUTENTICACION}
 
-      SPRING_R2DBC_URL: r2dbc:postgresql://${AUTENTICACION_AWS_POSTGRES_HOST}:5432/?ssl=true&sslMode=require
-      SPRING_R2DBC_USERNAME: ${AUTENTICACION_AWS_POSTGRES_USER}
-      SPRING_R2DBC_PASSWORD: ${AUTENTICACION_AWS_POSTGRES_PASSWORD}
+      # CORS / JWT
+      JWT_SECRET:               ${JWT_SECRET}
+      JWT_EXPIRATION:           ${JWT_EXPIRATION}
+      CORS_ALLOWED_ORIGINS:     ${CORS_ALLOWED_ORIGINS}
 
     ports:
       - "${AUTENTICACION_SERVER_PORT}:${AUTENTICACION_SERVER_PORT}"
@@ -70,7 +67,7 @@ services:
   postgres-solicitudes:
     image: postgres:17
     ports:
-      - "${SOLICITUDES_POSTGRES_HOST_PORT}:5432"
+      - "${SOLICITUDES_POSTGRES_HOST_PORT}:${SOLICITUDES_POSTGRES_PORT}"
     environment:
       POSTGRES_DB:            ${SOLICITUDES_POSTGRES_DB}
       POSTGRES_USER:          ${SOLICITUDES_POSTGRES_USER}
@@ -157,7 +154,7 @@ services:
       SQS_QUEUES_REPORTE_SOLICITUD_APROBADA: ${SQS_REPORTE_SOLICITUD_APROBADA}
 
       DYNAMO_DB_REPORTES_URL:     ${DYNAMO_DB_REPORTES_URL}
-      SPRING_PROFILES_ACTIVE:     ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE:     ${PROFILE_ACTIVE}
 
 
     ports:
